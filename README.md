@@ -2,6 +2,8 @@
 
 페르소나 라이터는 AI 기반의 글쓰기 보조 도구로, 작가들이 자신만의 세계관을 구축하고, 매력적인 캐릭터를 창조하며, 일관성 있는 스토리를 작성할 수 있도록 돕습니다.
 
+🚀 **배포된 애플리케이션 미리보기:** [https://persona-writer.vercel.app/](https://persona-writer.vercel.app/)
+
 ## ✨ 주요 기능
 
 -   **AI 글쓰기 어시스턴트:** Google Gemini 모델을 활용하여 글의 리듬감, 문체, 캐릭터의 일관성 등을 분석하고 제안합니다.
@@ -73,13 +75,26 @@ npm run build:server
 
 이 프로젝트는 프론트엔드와 백엔드를 분리하여 배포하는 것을 권장합니다.
 
-### 백엔드 (Railway)
+### 백엔드 (Render)
 
 1.  프로젝트를 GitHub 저장소에 푸시합니다.
-2.  Railway에 로그인하여 새 프로젝트를 만들고, 해당 GitHub 저장소를 연결합니다.
-3.  Railway가 프로젝트의 `Dockerfile`을 자동으로 감지하여 빌드 및 배포를 시작합니다.
-4.  Railway 프로젝트 설정의 'Variables' 탭에서 `.env` 파일에 설정했던 환경 변수들을 모두 추가합니다.
-5.  배포가 완료되면 제공되는 공개 URL을 확인합니다.
+2.  Render에 로그인하여 "New +" 버튼을 클릭한 후 "Web Service"를 선택합니다.
+3.  GitHub 계정을 연결하고, 푸시한 GitHub 저장소를 선택합니다.
+4.  서비스 설정에서 다음을 구성합니다:
+    -   **Name:** `persona-writer-backend` (원하는 이름으로 지정)
+    -   **Region:** 가까운 지역 선택
+    -   **Branch:** `main` (또는 메인 브랜치 이름)
+    -   **Runtime:** `Node` (Render가 자동으로 인식할 수 있습니다.)
+    -   **Root Directory:** 비워두세요.
+    -   **Build Command:** `npm install && npm run build:server`
+    -   **Start Command:** `node dist-server/server.js`
+5.  Render 프로젝트 설정의 'Environment' 탭에서 `.env` 파일에 설정했던 환경 변수들을 모두 추가합니다.
+    -   `DATABASE_URL=YOUR_SUPABASE_DATABASE_URL`
+    -   `SUPABASE_SERVICE_ROLE_KEY=YOUR_SUPABASE_SERVICE_ROLE_KEY`
+    -   `GEMINI_API_KEY=YOUR_GEMINI_API_KEY`
+    -   `HOST=0.0.0.0`
+    -   `PORT=3001`
+6.  배포가 완료되면 제공되는 공개 URL을 확인합니다.
 
 ### 프론트엔드 (Vercel)
 
