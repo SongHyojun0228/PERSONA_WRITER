@@ -10,7 +10,6 @@ import {
   CogIcon,
   XIcon,
   UserGroupIcon,
-  UsersIcon,
   PencilIcon,
   CombineIcon,
 } from "../Icons";
@@ -279,7 +278,7 @@ export const LeftSidebar = () => {
           onClick={() => setActiveView({ type: 'relationships' })}
           isActive={activeView?.type === 'relationships'}
         >
-          <UsersIcon />
+          <img src="/relationship.png" alt="인물 관계" className="h-5 w-5 mr-3" />
           <span>인물 관계</span>
         </NavButton>
 

@@ -238,7 +238,7 @@ const TiptapEditor = ({ content, onUpdate }: TiptapEditorProps) => {
 
       <Modal
         isOpen={isSpellCheckModalOpen}
-        onClose={() => setIsSpellCheckModalOpen(false)}
+        onClose={() => { setIsSpellCheckModalOpen(false); setIsSpellCheckLoading(false); }}
         title="맞춤법 검사 결과"
       >
         <SpellCheckResultsModalContent
@@ -248,13 +248,13 @@ const TiptapEditor = ({ content, onUpdate }: TiptapEditorProps) => {
             setIsSpellCheckModalOpen(false);
           }}
           onApplyAllCorrection={handleApplyAllCorrection}
-          onClose={() => setIsSpellCheckModalOpen(false)}
+          onClose={() => { setIsSpellCheckModalOpen(false); setIsSpellCheckLoading(false); }}
         />
       </Modal>
 
       <Modal
         isOpen={isPacingModalOpen}
-        onClose={() => setIsPacingModalOpen(false)}
+        onClose={() => { setIsPacingModalOpen(false); setIsPacingLoading(false); }}
         title="글의 리듬감 분석"
       >
         <div className="max-h-96 overflow-y-auto whitespace-pre-wrap">
@@ -270,7 +270,7 @@ const TiptapEditor = ({ content, onUpdate }: TiptapEditorProps) => {
       
       <Modal
         isOpen={isConsistencyModalOpen}
-        onClose={() => setIsConsistencyModalOpen(false)}
+        onClose={() => { setIsConsistencyModalOpen(false); setIsConsistencyLoading(false); }}
         title="캐릭터 일관성 분석"
       >
         <div className="max-h-96 overflow-y-auto whitespace-pre-wrap">

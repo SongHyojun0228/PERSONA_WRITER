@@ -12,18 +12,48 @@
   line-height: 1.8;
 }
 
-.tiptap h1, .tiptap h2, .tiptap h3 {
+.tiptap h1 {
+  font-size: 2em; /* H1 */
   font-weight: bold;
   margin-top: 1.5em;
   margin-bottom: 0.5em;
-  color: var(--color-primary-accent); /* index.css에 정의한 변수 사용 */
+  color: var(--color-primary-accent);
+}
+
+.tiptap h2 {
+  font-size: 1.5em; /* H2 */
+  font-weight: bold;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: var(--color-primary-accent);
+}
+
+.tiptap h3 {
+  font-size: 1.17em; /* H3 */
+  font-weight: bold;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: var(--color-primary-accent);
 }
 
 .dark .tiptap h1, .dark .tiptap h2, .dark .tiptap h3 {
   color: var(--color-dark-accent);
 }
 
+.tiptap ul, .tiptap ol { /* Apply to both ul and ol */
+  padding-left: 1.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
 .tiptap ul {
   list-style-type: disc;
-  padding-left: 1.5em;
+}
+
+.tiptap ol { /* Ordered list */
+  list-style-type: decimal;
+}
+
+.tiptap li p { /* Ensure paragraphs inside list items don't add extra margin */
+  margin: 0;
 }
