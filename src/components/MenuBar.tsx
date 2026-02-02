@@ -1,8 +1,6 @@
 import { Editor } from '@tiptap/react';
 import {
   FlagIcon,
-  Heading1Icon,
-  Heading2Icon,
   ListIcon,
   ListOrderedIcon,
   SpellCheckIcon,
