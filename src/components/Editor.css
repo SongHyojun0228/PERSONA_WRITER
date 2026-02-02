@@ -1,0 +1,29 @@
+/* src/components/Editor.css */
+
+.tiptap {
+  /* focus 시 파란 테두리 제거 */
+  outline: none;
+  padding: 2rem; /* Tailwind p-8 equivalent */
+}
+
+/* Tiptap 에디터 내부의 기본 스타일 설정 */
+.tiptap p {
+  margin: 1em 0;
+  line-height: 1.8;
+}
+
+.tiptap h1, .tiptap h2, .tiptap h3 {
+  font-weight: bold;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: var(--color-primary-accent); /* index.css에 정의한 변수 사용 */
+}
+
+.dark .tiptap h1, .dark .tiptap h2, .dark .tiptap h3 {
+  color: var(--color-dark-accent);
+}
+
+.tiptap ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+}

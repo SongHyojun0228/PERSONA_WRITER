@@ -1,0 +1,11 @@
+{
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist-server",
+    "composite": true,
+    "noEmit": false
+  },
+  "include": ["server.ts", "src/**/*.d.ts"]
+}

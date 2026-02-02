@@ -1,0 +1,50 @@
+import { Link } from 'react-router-dom';
+import { ThemeToggle } from '../ThemeToggle';
+import { NotificationBell } from '../NotificationBell';
+import { useAuth } from '../../context/AuthContext';
+import spiritIcon from '../../assets/spirit.png';
+import { useState } from 'react'; // Import useState
+import { InspirationShopModal } from '../InspirationShopModal'; // Import InspirationShopModal
+
+export const Header = () => {
+  const { username, inspirationCount } = useAuth();
+  const [isShopModalOpen, setIsShopModalOpen] = useState(false); // State for modal visibility
+
+  return (
+    <header className="flex justify-between items-center p-4 border-b border-ink/10 dark:border-pale-lavender/10">
+      <Link to="/">
+        <h1 className="text-xl font-bold text-primary-accent dark:text-dark-accent">
+          Persona Writer
+        </h1>
+      </Link>
+      
+      <div className="flex items-center space-x-4">
+        {username && (
+          <>
+            <Link to="/my-page" className="flex items-center space-x-2 text-ink dark:text-pale-lavender hover:text-primary-accent dark:hover:text-dark-accent transition-colors duration-200">
+              <span className="font-medium">{username}</span>
+            </Link>
+            {inspirationCount !== null && (
+              <div
+                className="flex items-center space-x-1 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setIsShopModalOpen(true)} // Open modal on click
+                title="영감 구매"
+              >
+                <img src={spiritIcon} alt="Inspiration" className="h-5 w-5" />
+                <span className="text-sm font-semibold">{inspirationCount}</span>
+              </div>
+            )}
+          </>
+        )}
+        <NotificationBell />
+        <ThemeToggle />
+      </div>
+
+      {/* Render the InspirationShopModal */}
+      <InspirationShopModal
+        isOpen={isShopModalOpen}
+        onClose={() => setIsShopModalOpen(false)}
+      />
+    </header>
+  );
+};
