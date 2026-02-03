@@ -192,17 +192,22 @@ const Community = () => {
       const purchaseDate = new Date();
       const expiryDate = new Date(purchaseDate.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days from now
 
-      // Insert purchase record into user_story_purchases
+      // Upsert purchase record to handle re-purchases
       const { error: purchaseError } = await supabase
         .from('user_story_purchases')
-        .insert({
-          user_id: user.id,
-          published_story_id: storyId,
-          purchase_date: purchaseDate.toISOString(),
-          expiry_date: expiryDate.toISOString(),
-        })
+        .upsert(
+          {
+            user_id: user.id,
+            published_story_id: storyId,
+            purchase_date: purchaseDate.toISOString(),
+            expiry_date: expiryDate.toISOString(),
+          },
+          {
+            onConflict: 'user_id,published_story_id', // The columns that have a UNIQUE constraint
+          }
+        )
         .select()
-        .single(); // Use .single() to ensure only one row is expected or check for errors properly
+        .single();
 
       if (purchaseError) {
         // If there's a purchase error, attempt to revert inspiration deduction
