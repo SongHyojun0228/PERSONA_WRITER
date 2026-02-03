@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://persona-writer.vercel.app/sitemap.xml
