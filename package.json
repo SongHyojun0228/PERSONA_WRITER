@@ -9,7 +9,8 @@
     "build:server": "tsc -p tsconfig.node.json",
     "lint": "eslint .",
     "server": "npm run build:server && node dist-server/server.js",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sitemap": "node generate-sitemap.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
