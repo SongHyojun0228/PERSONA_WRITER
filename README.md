@@ -262,8 +262,8 @@ This project is licensed under the MIT License.
 ## 👨‍💻 개발자
 
 **Hyojun Song**
-- Email: [your-email@example.com]
-- GitHub: [@your-username](https://github.com/your-username)
+- Email: [thdgywns2300@gmail.com]
+- GitHub: [https://github.com/SongHyojun0228](https://github.com/SongHyojun0228)
 
 ---
 
@@ -275,22 +275,6 @@ This project is licensed under the MIT License.
 - [Google Gemini](https://ai.google.dev/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Vite](https://vitejs.dev/)
-
----
-
-## 📸 스크린샷
-
-### 메인 화면
-![Homepage](참고자료/사진1.webp)
-
-### 작품 편집
-![Editor](참고자료/사진6.webp)
-
-### 캐릭터 관계도
-![Relationships](참고자료/사진3.webp)
-
-### 이야기 광장
-![Community](참고자료/사진2.webp)
 
 ---
 
