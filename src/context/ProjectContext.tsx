@@ -19,6 +19,8 @@ export type ActiveView =
   | { type: "characterSheet" }
   | { type: "settings"; id: string }
   | { type: 'relationships' }
+  | { type: 'plotBoard' }
+  | { type: 'timeline' }
   | { type: "mergedPage"; id: string };
 
 interface ProjectContextType {

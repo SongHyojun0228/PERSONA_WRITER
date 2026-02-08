@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
 import PublishedStoryCard from '../components/PublishedStoryCard';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import { LoadingBar } from '../components/LoadingBar';
 
 interface FoundUser {
     id: string;
@@ -54,6 +56,7 @@ const SearchPage = () => {
 
     return (
         <>
+            <LoadingBar isLoading={loading} />
             <Header />
             <div className="max-w-6xl mx-auto p-8">
                 <h1 className="text-3xl font-bold mb-8">
@@ -61,7 +64,9 @@ const SearchPage = () => {
                 </h1>
 
                 {loading ? (
-                    <div className="text-center p-8">검색 중...</div>
+                    <div className="flex items-center justify-center p-16">
+                        <LoadingSpinner size="lg" text="검색 중..." />
+                    </div>
                 ) : (
                     <div className="space-y-12">
                         {/* User Results */}

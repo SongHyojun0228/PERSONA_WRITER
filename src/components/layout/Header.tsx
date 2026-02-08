@@ -3,12 +3,16 @@ import { ThemeToggle } from '../ThemeToggle';
 import { NotificationBell } from '../NotificationBell';
 import { useAuth } from '../../context/AuthContext';
 import spiritIcon from '../../assets/spirit.png';
-import { useState } from 'react'; // Import useState
-import { InspirationShopModal } from '../InspirationShopModal'; // Import InspirationShopModal
+import { useState, type ReactNode } from 'react';
+import { InspirationShopModal } from '../InspirationShopModal';
 
-export const Header = () => {
+interface HeaderProps {
+  children?: ReactNode;
+}
+
+export const Header = ({ children }: HeaderProps) => {
   const { username, inspirationCount } = useAuth();
-  const [isShopModalOpen, setIsShopModalOpen] = useState(false); // State for modal visibility
+  const [isShopModalOpen, setIsShopModalOpen] = useState(false);
 
   return (
     <header className="flex justify-between items-center p-4 border-b border-ink/10 dark:border-pale-lavender/10">
@@ -17,8 +21,9 @@ export const Header = () => {
           Persona Writer
         </h1>
       </Link>
-      
+
       <div className="flex items-center space-x-4">
+        {children}
         {username && (
           <>
             <Link to="/my-page" className="flex items-center space-x-2 text-ink dark:text-pale-lavender hover:text-primary-accent dark:hover:text-dark-accent transition-colors duration-200">

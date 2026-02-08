@@ -10,7 +10,12 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { type Project } from '../data/mock';
 import { CoverGeneratorModal } from '../components/CoverGeneratorModal';
-import { Modal } from '../components/Modal'; // Import Modal component
+import { Modal } from '../components/Modal';
+import { FullscreenIcon, ExitFullscreenIcon } from '../components/Icons';
+import { EditorStatusBar } from '../components/EditorStatusBar';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import { LoadingBar } from '../components/LoadingBar';
+import { generateEpub, downloadEpub } from '../lib/epubGenerator';
 
 // This is the inner component that renders once the project is loaded
 const Dashboard = () => {
@@ -25,9 +30,12 @@ const Dashboard = () => {
   const [isPublishConfirmModalOpen, setIsPublishConfirmModalOpen] = useState(false);
   const [publishTitleInput, setPublishTitleInput] = useState('');
   const [publishCoverImageUrlInput, setPublishCoverImageUrlInput] = useState('');
+  const [publishGenre, setPublishGenre] = useState('');
+  const [publishDescription, setPublishDescription] = useState('');
   const [isPaid, setIsPaid] = useState(false);
   const [price, setPrice] = useState(300);
   const [priceError, setPriceError] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
@@ -122,6 +130,8 @@ const Dashboard = () => {
           title: publishTitleInput,
           content: editorContent,
           coverImageUrl: publishCoverImageUrlInput || null,
+          genre: publishGenre || null,
+          description: publishDescription || null,
           is_paid: isPaid,
           price: isPaid ? price : null,
         }),
@@ -150,6 +160,8 @@ const Dashboard = () => {
     }
     setPublishTitleInput(project.name);
     setPublishCoverImageUrlInput(project.cover_image_url || '');
+    setPublishGenre('');
+    setPublishDescription('');
     setIsPaid(false);
     setPrice(300);
     setPriceError('');
@@ -168,17 +180,94 @@ const Dashboard = () => {
 
   const handleGenerateCover = () => setIsCoverModalOpen(true);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">프로젝트 상세 정보 불러오는 중...</div>;
+  const handleExportEpub = async () => {
+    if (!project || !editorContent) {
+      alert('내보낼 콘텐츠가 없습니다.');
+      return;
+    }
+
+    try {
+      // Get all pages and merge content
+      const pages = project.pages || [];
+      const chapters = pages.map((page, index) => ({
+        title: page.title || `Chapter ${index + 1}`,
+        content: page.content || '',
+      }));
+
+      // If no pages, use current editor content
+      if (chapters.length === 0) {
+        chapters.push({
+          title: project.name || '제목 없음',
+          content: editorContent,
+        });
+      }
+
+      // Generate EPUB
+      const blob = await generateEpub(
+        {
+          title: project.name || '제목 없음',
+          author: session?.user?.user_metadata?.username || 'Unknown',
+          language: 'ko',
+        },
+        chapters
+      );
+
+      // Download
+      downloadEpub(blob, project.name || 'story');
+      alert('EPUB 파일이 다운로드되었습니다!');
+    } catch (error) {
+      console.error('EPUB 생성 오류:', error);
+      alert('EPUB 파일 생성 중 오류가 발생했습니다.');
+    }
+  };
+
+  // Keyboard shortcut for fullscreen (F11 or Ctrl+F)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F11' || (e.ctrlKey && e.key === 'f')) {
+        e.preventDefault();
+        setIsFullscreen(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  if (loading) {
+    return (
+      <>
+        <LoadingBar isLoading={loading} />
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingSpinner size="lg" text="프로젝트를 불러오는 중..." />
+        </div>
+      </>
+    );
+  }
+
   if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">오류: {error}</div>;
 
   return (
     <>
       <div className="flex flex-col h-screen font-sans">
-        <Header />
+        <Header>
+          <EditorStatusBar />
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-2 rounded-lg hover:bg-ink/5 dark:hover:bg-pale-lavender/10 text-ink dark:text-pale-lavender transition-colors"
+            title={isFullscreen ? '전체화면 종료 (F11)' : '전체화면 (F11)'}
+          >
+            {isFullscreen ? (
+              <ExitFullscreenIcon className="w-5 h-5" />
+            ) : (
+              <FullscreenIcon className="w-5 h-5" />
+            )}
+          </button>
+        </Header>
         <div className="flex flex-1 overflow-hidden">
-          <LeftSidebar />
+          {!isFullscreen && <LeftSidebar />}
           <MainContent />
-          <RightSidebar onPublish={handlePublishClick} onGenerateCover={handleGenerateCover} />
+          {!isFullscreen && <RightSidebar onPublish={handlePublishClick} onGenerateCover={handleGenerateCover} onExportEpub={handleExportEpub} />}
         </div>
       </div>
       <CoverGeneratorModal isOpen={isCoverModalOpen} onClose={() => setIsCoverModalOpen(false)} />
@@ -191,6 +280,37 @@ const Dashboard = () => {
           <div>
             <label htmlFor="publishCoverImageUrl" className="block text-sm font-medium text-ink/80 dark:text-pale-lavender/80 mb-1">표지 이미지 URL (선택 사항)</label>
             <input type="text" id="publishCoverImageUrl" className="w-full p-2 border-2 rounded-lg bg-paper dark:bg-forest-sub border-ink/20 dark:border-pale-lavender/20 focus:border-primary-accent dark:focus:border-dark-accent focus:outline-none" value={publishCoverImageUrlInput} onChange={(e) => setPublishCoverImageUrlInput(e.target.value)} />
+          </div>
+          <div>
+            <label htmlFor="publishGenre" className="block text-sm font-medium text-ink/80 dark:text-pale-lavender/80 mb-1">장르 (선택 사항)</label>
+            <select
+              id="publishGenre"
+              value={publishGenre}
+              onChange={(e) => setPublishGenre(e.target.value)}
+              className="w-full p-2 border-2 rounded-lg bg-paper dark:bg-forest-sub border-ink/20 dark:border-pale-lavender/20 focus:border-primary-accent dark:focus:border-dark-accent focus:outline-none"
+            >
+              <option value="">장르 선택</option>
+              <option value="로맨스">로맨스</option>
+              <option value="판타지">판타지</option>
+              <option value="SF">SF</option>
+              <option value="미스터리">미스터리</option>
+              <option value="에세이">에세이</option>
+              <option value="일상">일상</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="publishDescription" className="block text-sm font-medium text-ink/80 dark:text-pale-lavender/80 mb-1">작품 소개 (선택 사항)</label>
+            <textarea
+              id="publishDescription"
+              value={publishDescription}
+              onChange={(e) => setPublishDescription(e.target.value)}
+              placeholder="2-3줄로 작품을 소개해주세요"
+              maxLength={150}
+              rows={3}
+              className="w-full p-2 border-2 rounded-lg bg-paper dark:bg-forest-sub border-ink/20 dark:border-pale-lavender/20 focus:border-primary-accent dark:focus:border-dark-accent focus:outline-none resize-none"
+            />
+            <p className="text-xs text-ink/50 dark:text-pale-lavender/50 mt-1">{publishDescription.length}/150</p>
           </div>
           <div className="space-y-2">
             <div className="flex items-center">

@@ -128,6 +128,10 @@ app.get("/api/published-stories", async (req, res) => {
           user_id,
           is_paid,
           price,
+          genre,
+          description,
+          view_count,
+          content,
           likes (
             count
           )
@@ -149,7 +153,11 @@ app.get("/api/published-stories", async (req, res) => {
           created_at,
           user_id,
           is_paid,
-          price
+          price,
+          genre,
+          description,
+          view_count,
+          content
         `);
       if (authorIdToFilter) {
         queryBuilder = queryBuilder.eq("user_id", authorIdToFilter);
@@ -204,7 +212,12 @@ app.get("/api/published-stories/:id", async (req, res) => {
       content,
       cover_image_url,
       created_at,
-      user_id
+      user_id,
+      genre,
+      description,
+      view_count,
+      is_paid,
+      price
     `,
     )
     .eq("id", id)
@@ -242,7 +255,7 @@ app.get("/api/published-stories/:id", async (req, res) => {
 
 // POST to publish a story
 app.post("/api/publish", async (req, res) => {
-  const { projectId, title, content, coverImageUrl, is_paid, price } = req.body;
+  const { projectId, title, content, coverImageUrl, genre, description, is_paid, price } = req.body;
 
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -271,6 +284,8 @@ app.post("/api/publish", async (req, res) => {
       title,
       content,
       cover_image_url: coverImageUrl,
+      genre,
+      description,
       is_paid,
       price,
     })
@@ -581,7 +596,18 @@ app.get("/api/users/:userId/profile", async (req, res) => {
     }
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    res.json({ username: user.user_metadata?.username || "Anonymous" });
+    // Fetch additional profile data from profiles table
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("bio, profile_image_url")
+      .eq("id", userId)
+      .single();
+
+    res.json({
+      username: user.user_metadata?.username || "Anonymous",
+      bio: profileData?.bio || null,
+      profile_image_url: profileData?.profile_image_url || null
+    });
   } catch (error: any) {
     console.error(
       `Unexpected error fetching profile for user ${userId}:`,
@@ -616,7 +642,13 @@ app.get("/api/users/:userId/stories", async (req, res) => {
         title,
         cover_image_url,
         created_at,
-        user_id
+        user_id,
+        genre,
+        description,
+        view_count,
+        content,
+        is_paid,
+        price
       `,
       )
       .eq("user_id", userId)

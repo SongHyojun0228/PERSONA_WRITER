@@ -2,6 +2,9 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
+import Link from "@tiptap/extension-link";
+import Blockquote from "@tiptap/extension-blockquote";
+import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import MenuBar from "./MenuBar";
 import { Modal } from "./Modal";
 import SpellCheckResultsModalContent from "./SpellCheckResultsModalContent";
@@ -9,6 +12,7 @@ import "./Editor.css";
 import { useEditorContext } from '../context/EditorContext';
 import { useProjectContext } from '../context/ProjectContext';
 import { useEffect, useState, useCallback } from "react";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface TiptapEditorProps {
   content: string;
@@ -41,9 +45,25 @@ const TiptapEditor = ({ content, onUpdate }: TiptapEditorProps) => {
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+        blockquote: false, // Disable default to use custom
+        horizontalRule: false, // Disable default to use custom
+      }),
       TextStyle,
       Color,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary-accent dark:text-dark-accent underline',
+        },
+      }),
+      Blockquote.configure({
+        HTMLAttributes: {
+          class: 'border-l-4 border-primary-accent dark:border-dark-accent pl-4 italic',
+        },
+      }),
+      HorizontalRule,
     ],
     editorProps: {
       attributes: { spellcheck: 'true' },
@@ -224,15 +244,17 @@ const TiptapEditor = ({ content, onUpdate }: TiptapEditorProps) => {
       </div>
 
       {(isSpellCheckLoading || isPacingLoading || isConsistencyLoading) && (
-        <div className="fixed inset-0 bg-midnight bg-opacity-75 flex justify-center items-center z-50">
-          <p className="text-primary-accent font-bold text-lg">
-            {isPacingLoading 
-              ? <>글의 리듬감을 분석 중입니다<span className="animate-bounce-dot">.</span><span className="animate-bounce-dot">.</span><span className="animate-bounce-dot">.</span></>
-              : isConsistencyLoading
-              ? <>캐릭터 일관성을 분석 중입니다<span className="animate-bounce-dot">.</span><span className="animate-bounce-dot">.</span><span className="animate-bounce-dot">.</span></>
-              : <>맞춤법 검사 중<span className="animate-bounce-dot">.</span><span className="animate-bounce-dot">.</span><span className="animate-bounce-dot">.</span></>
+        <div className="fixed inset-0 bg-midnight/80 dark:bg-midnight/90 backdrop-blur-sm flex justify-center items-center z-50">
+          <LoadingSpinner
+            size="lg"
+            text={
+              isPacingLoading
+                ? "글의 리듬감을 분석하고 있습니다..."
+                : isConsistencyLoading
+                ? "캐릭터 일관성을 분석하고 있습니다..."
+                : "맞춤법을 검사하고 있습니다..."
             }
-          </p>
+          />
         </div>
       )}
 

@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { PaperAirplaneIcon } from "./Icons";
 import { useProjectContext } from "../context/ProjectContext";
-import { useAuth } from "../context/AuthContext"; // Import useAuth
+import { useAuth } from "../context/AuthContext";
+import { TypingIndicator } from "./TypingIndicator";
 
 type Message = {
   id: number;
@@ -9,16 +10,25 @@ type Message = {
   text: string;
 };
 
+const quickPrompts = [
+  "다음 전개 제안해줘",
+  "이 문장 더 나은 표현으로 바꿔줘",
+  "오타 체크해줘",
+  "감정 묘사 추가해줘",
+  "대화 장면 개선해줘",
+  "배경 묘사 풍부하게"
+];
+
 export const AIChat = () => {
-  const { project } = useProjectContext(); // Get project data from context
-  const { username } = useAuth(); // Get username from AuthContext
+  const { project } = useProjectContext();
+  const { username } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, sender: "ai", text: `${username}님 안녕하세요! 글쓰기에 도움이 필요하신가요?` },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null); // New ref for the textarea
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -35,6 +45,12 @@ export const AIChat = () => {
       textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'; // Set to scrollHeight
     }
   }, [input]); // Re-run when input changes
+
+  const handleQuickPrompt = (prompt: string) => {
+    setInput(prompt);
+    // Auto-send after a brief delay to allow state update
+    setTimeout(() => handleSendMessage(), 100);
+  };
 
   const handleSendMessage = async () => {
     if (input.trim() === "" || isLoading) return;
@@ -149,16 +165,28 @@ export const AIChat = () => {
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-2xl bg-paper dark:bg-midnight">
-              <span className="animate-pulse">...</span>
+            <div className="max-w-xs lg:max-w-md px-4 py-3 rounded-2xl bg-primary-accent/10 dark:bg-dark-accent/20">
+              <TypingIndicator />
             </div>
           </div>
         )}
       </div>
 
+      {/* Quick Prompts */}
+      <div className="p-2 border-t border-b border-ink/10 dark:border-pale-lavender/10 flex flex-wrap gap-2">
+        {quickPrompts.map((prompt, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleQuickPrompt(prompt)}
+            disabled={isLoading}
+            className="px-3 py-1 text-xs bg-primary-accent/10 dark:bg-dark-accent/20 text-primary-accent dark:text-dark-accent rounded-full hover:bg-primary-accent hover:text-white dark:hover:bg-dark-accent dark:hover:text-midnight transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {prompt}
+          </button>
+        ))}
+      </div>
+
       <div className="p-2 border-t border-ink/10">
-        {" "}
-        {/* 이제 border-ink/10도 다크모드에서 자동으로 밝아집니다 */}
         <div className="flex items-center">
           <textarea
             ref={textareaRef} // Assign ref to textarea

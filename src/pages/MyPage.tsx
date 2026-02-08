@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabaseClient";
 import PublishedStoryCard from "../components/PublishedStoryCard";
 import { Modal } from "../components/Modal";
 import { Link } from "react-router-dom";
 import spiritIcon from "../assets/spirit.png";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { LoadingBar } from "../components/LoadingBar";
 
 interface PublishedStory {
 
@@ -63,6 +65,7 @@ export const MyPage = () => {
     useState<PublishedStory | null>(null);
   const [editTitleInput, setEditTitleInput] = useState("");
   const [editCoverImageUrlInput, setEditCoverImageUrlInput] = useState("");
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'updated'>('newest');
 
   const fetchMyPublishedStories = useCallback(async () => {
     if (!session?.user?.id) {
@@ -252,11 +255,30 @@ export const MyPage = () => {
     }
   };
 
+  // Sort stories based on selected order
+  const sortedStories = useMemo(() => {
+    const stories = [...myPublishedStories];
+    switch (sortOrder) {
+      case 'newest':
+        return stories.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      case 'oldest':
+        return stories.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      case 'updated':
+        // For now, same as newest. Could be enhanced with updated_at column
+        return stories.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      default:
+        return stories;
+    }
+  }, [myPublishedStories, sortOrder]);
+
   if (loading)
     return (
-      <div className="min-h-screen p-8 flex items-center justify-center">
-        로딩 중...
-      </div>
+      <>
+        <LoadingBar isLoading={loading} />
+        <div className="min-h-screen p-8 flex items-center justify-center">
+          <LoadingSpinner size="lg" text="작품 목록을 불러오는 중..." />
+        </div>
+      </>
     );
 
   return (
@@ -277,9 +299,20 @@ export const MyPage = () => {
 
       <main>
         <section className="mb-16">
-          <h2 className="text-2xl font-bold mb-6">내가 발행한 글</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">내가 발행한 글</h2>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest' | 'updated')}
+              className="px-3 py-2 rounded-md text-sm font-medium bg-white dark:bg-forest-primary text-ink dark:text-white border-2 border-gray-200 dark:border-forest-sub focus:outline-none focus:border-primary-accent dark:focus:border-dark-accent transition-colors"
+            >
+              <option value="newest">최신순</option>
+              <option value="oldest">오래된 순</option>
+              <option value="updated">최근 수정순</option>
+            </select>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {myPublishedStories.map((story) => (
+            {sortedStories.map((story) => (
               <PublishedStoryCard
                 key={story.id}
                 story={{ ...story, is_paid: false }}

@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpenIcon, ChatBubbleLeftRightIcon, HeartIcon } from './Icons'; // Import new icons
+import { BookOpenIcon, ChatBubbleLeftRightIcon, HeartIcon } from './Icons';
+import { formatTimeAgo } from '../lib/timeAgo';
 
 // Base interface for all notifications
 interface BaseNotification {
@@ -46,7 +48,6 @@ interface NotificationDropdownProps {
 }
 
 const NotificationItem = ({ notification }: { notification: Notification }) => {
-    
     const renderContent = () => {
         switch (notification.type) {
             case 'new_story':
@@ -54,7 +55,8 @@ const NotificationItem = ({ notification }: { notification: Notification }) => {
                     icon: <BookOpenIcon className="w-5 h-5 text-primary-accent dark:text-dark-accent"/>,
                     text: (
                         <>
-                            <span className="font-semibold">{notification.data.authorName}</span>님이 새 이야기를 발행했습니다.
+                            <span className="font-semibold">{notification.data.authorName}</span>님이{' '}
+                            <span className="font-semibold text-primary-accent dark:text-dark-accent">"{notification.data.storyTitle}"</span>을(를) 발행했습니다.
                         </>
                     ),
                     title: notification.data.storyTitle
@@ -64,7 +66,8 @@ const NotificationItem = ({ notification }: { notification: Notification }) => {
                     icon: <ChatBubbleLeftRightIcon className="w-5 h-5 text-green-500"/>,
                     text: (
                         <>
-                            <span className="font-semibold">{notification.data.commenterUsername}</span>님이 회원님의 글에 댓글을 남겼습니다.
+                            <span className="font-semibold">{notification.data.commenterUsername}</span>님이{' '}
+                            <span className="font-semibold text-primary-accent dark:text-dark-accent">"{notification.data.storyTitle}"</span>에 댓글을 남겼습니다.
                         </>
                     ),
                     title: `RE: ${notification.data.storyTitle}`
@@ -74,7 +77,8 @@ const NotificationItem = ({ notification }: { notification: Notification }) => {
                     icon: <HeartIcon className="w-5 h-5 text-red-500"/>,
                     text: (
                         <>
-                            <span className="font-semibold">{notification.data.likerUsername}</span>님이 회원님의 글을 좋아합니다.
+                            <span className="font-semibold">{notification.data.likerUsername}</span>님이{' '}
+                            <span className="font-semibold text-primary-accent dark:text-dark-accent">"{notification.data.storyTitle}"</span>을(를) 좋아합니다.
                         </>
                     ),
                     title: `👍 ${notification.data.storyTitle}`
@@ -109,8 +113,11 @@ const NotificationItem = ({ notification }: { notification: Notification }) => {
                     <p className="mt-1 text-sm font-bold text-gray-900 dark:text-white truncate">
                         {title}
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">
-                        {new Date(notification.created_at).toLocaleString()}
+                    <p className="mt-1 text-xs text-gray-500 flex items-center">
+                        {formatTimeAgo(notification.created_at)}
+                        {!notification.is_read && (
+                            <span className="inline-block w-2 h-2 bg-blue-500 rounded-full ml-2" />
+                        )}
                     </p>
                 </div>
             </div>
@@ -119,8 +126,18 @@ const NotificationItem = ({ notification }: { notification: Notification }) => {
 };
 
 export const NotificationDropdown = ({ notifications, onClose, onMarkAllAsRead }: NotificationDropdownProps) => {
+    const [activeTab, setActiveTab] = useState<'all' | 'likes' | 'comments' | 'system'>('all');
+
+    const filteredNotifications = notifications.filter(n => {
+        if (activeTab === 'all') return true;
+        if (activeTab === 'likes') return n.type === 'new_like';
+        if (activeTab === 'comments') return n.type === 'new_comment';
+        if (activeTab === 'system') return n.type === 'new_story';
+        return true;
+    });
+
     return (
-        <div 
+        <div
             className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
             role="menu"
             aria-orientation="vertical"
@@ -130,16 +147,39 @@ export const NotificationDropdown = ({ notifications, onClose, onMarkAllAsRead }
                 <div className="px-4 py-3 border-b dark:border-gray-700">
                     <p className="text-lg font-bold text-gray-900 dark:text-white">알림</p>
                 </div>
+
+                {/* Tab Navigation */}
+                <div className="flex border-b dark:border-gray-700">
+                    {[
+                        { key: 'all' as const, label: '전체' },
+                        { key: 'likes' as const, label: '좋아요' },
+                        { key: 'comments' as const, label: '댓글' },
+                        { key: 'system' as const, label: '시스템' }
+                    ].map(tab => (
+                        <button
+                            key={tab.key}
+                            onClick={() => setActiveTab(tab.key)}
+                            className={`flex-1 py-2 text-sm transition-colors ${
+                                activeTab === tab.key
+                                    ? 'border-b-2 border-primary-accent dark:border-dark-accent text-primary-accent dark:text-dark-accent font-semibold'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                            }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
                 <div className="max-h-96 overflow-y-auto">
-                    {notifications.length > 0 ? (
-                        notifications.map(n => <NotificationItem key={n.id} notification={n} />)
+                    {filteredNotifications.length > 0 ? (
+                        filteredNotifications.map(n => <NotificationItem key={n.id} notification={n} />)
                     ) : (
                         <p className="text-center text-gray-500 py-8">새 알림이 없습니다.</p>
                     )}
                 </div>
                 <div className="px-4 py-2 border-t dark:border-gray-700 text-right flex justify-between items-center">
-                    <button 
-                        onClick={onMarkAllAsRead} 
+                    <button
+                        onClick={onMarkAllAsRead}
                         className="text-sm text-primary-accent dark:text-dark-accent font-semibold hover:underline"
                     >
                         모두 읽음

@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PublishedStoryCard from './PublishedStoryCard';
 import { SearchIcon } from './Icons';
-import { PurchaseConfirmationModal } from './PurchaseConfirmationModal'; // Import the new modal
-import { useAuth } from '../context/AuthContext'; // Import useAuth to get user's inspiration count
-import { supabase } from '../lib/supabaseClient'; // Import supabase for transactions
+import { PurchaseConfirmationModal } from './PurchaseConfirmationModal';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabaseClient';
+import { calculateReadTime } from '../lib/utils';
+import { SkeletonCardGrid } from './SkeletonCard';
+import { LoadingBar } from './LoadingBar';
 
 interface PublishedStory {
   id: string;
@@ -36,10 +39,26 @@ interface PurchasedStoryInfo {
 
 const STORIES_PER_PAGE = 16; // Define stories per page
 
+// Helper function to extract first paragraph from HTML content
+const extractFirstParagraph = (htmlContent: string): string => {
+  if (!htmlContent) return '';
+
+  // Create a temporary div to parse HTML
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+
+  // Get text content and extract first ~200 characters
+  const textContent = tempDiv.textContent || tempDiv.innerText || '';
+  const firstParagraph = textContent.trim().substring(0, 200);
+
+  return firstParagraph ? firstParagraph + (textContent.length > 200 ? '...' : '') : '';
+};
+
 const Community = () => {
   const [stories, setStories] = useState<PublishedStory[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<'newest' | 'likes'>('newest');
+  const [genreFilter, setGenreFilter] = useState<string>('all');
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
   const { session, inspirationCount, user, refreshUserProfile } = useAuth();
@@ -50,7 +69,6 @@ const Community = () => {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -78,16 +96,20 @@ const Community = () => {
           }
         }
         
-        // 3. Fetch likes and process all stories
+        // 3. Fetch likes, comments, and process all stories
         const processedStories = await Promise.all(
           publishedStoriesData.map(async (story: PublishedStory) => {
             // Fetch likes
-            const { count, error } = await supabase
+            const { count: likesCount, error: likesError } = await supabase
               .from('likes')
               .select('*', { count: 'exact', head: true })
               .eq('published_story_id', story.id);
-            
-            const likesCount = error ? 0 : count || 0;
+
+            // Fetch comments count
+            const { count: commentsCount, error: commentsError } = await supabase
+              .from('comments')
+              .select('*', { count: 'exact', head: true })
+              .eq('published_story_id', story.id);
 
             // Check ownership and purchase status
             const isOwned = user ? story.user_id === user.id : false;
@@ -99,16 +121,17 @@ const Community = () => {
             if (purchaseInfo) {
               const expiresAt = new Date(purchaseInfo.expiry_date);
               const remainingTime = expiresAt.getTime() - new Date().getTime();
-              
+
               if (remainingTime > 0) {
-                isPurchased = true; // Only consider it purchased if not expired
+                isPurchased = true;
                 remainingDays = Math.ceil(remainingTime / (1000 * 60 * 60 * 24));
               }
             }
 
-            return { 
-              ...story, 
-              likesCount,
+            return {
+              ...story,
+              likesCount: likesError ? 0 : likesCount || 0,
+              commentsCount: commentsError ? 0 : commentsCount || 0,
               isOwned,
               isPurchased,
               remainingDays,
@@ -118,8 +141,7 @@ const Community = () => {
         
         // Set all stories, do not filter out expired ones from view
         setStories(processedStories);
-        setTotalPages(Math.ceil(processedStories.length / STORIES_PER_PAGE));
-        setCurrentPage(1);
+        // Total pages will be recalculated based on filtered stories
 
       } catch (error) {
         console.error(error);
@@ -236,14 +258,23 @@ const Community = () => {
     // As requested, if "아니요" is clicked, stay on the current page (Community)
   };
 
+  // Filter stories by genre
+  const filteredStories = genreFilter === 'all'
+    ? stories
+    : stories.filter(story => (story as any).genre === genreFilter);
+
+  // Update total pages based on filtered results
+  const totalPagesForFiltered = Math.ceil(filteredStories.length / STORIES_PER_PAGE);
+
   // Calculate stories for the current page
   const indexOfLastStory = currentPage * STORIES_PER_PAGE;
   const indexOfFirstStory = indexOfLastStory - STORIES_PER_PAGE;
-  const currentStories = stories.slice(indexOfFirstStory, indexOfLastStory);
+  const currentStories = filteredStories.slice(indexOfFirstStory, indexOfLastStory);
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex flex-nowrap justify-between items-center mb-4 px-4">
+      <LoadingBar isLoading={loading} />
+      <div className="flex flex-nowrap justify-between items-center mb-4 px-4 gap-3">
         {/* Sorting Buttons */}
         <div className="flex-shrink-0 flex items-center space-x-2 p-1 rounded-lg bg-gray-200 dark:bg-forest-sub">
           <button
@@ -268,6 +299,27 @@ const Community = () => {
           </button>
         </div>
 
+        {/* Genre Filter */}
+        <div className="flex-shrink-0">
+          <select
+            value={genreFilter}
+            onChange={(e) => {
+              setGenreFilter(e.target.value);
+              setCurrentPage(1); // Reset to first page when filter changes
+            }}
+            className="px-3 py-1 rounded-md text-sm font-medium bg-white dark:bg-forest-primary text-ink dark:text-white border-2 border-gray-200 dark:border-forest-sub focus:outline-none focus:border-primary-accent dark:focus:border-dark-accent transition-colors"
+          >
+            <option value="all">모든 장르</option>
+            <option value="로맨스">로맨스</option>
+            <option value="판타지">판타지</option>
+            <option value="SF">SF</option>
+            <option value="미스터리">미스터리</option>
+            <option value="에세이">에세이</option>
+            <option value="일상">일상</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+
         {/* Search Input */}
         <div className="w-1/3 min-w-[200px]">
             <form onSubmit={handleSearchSubmit} className="relative w-full">
@@ -285,7 +337,7 @@ const Community = () => {
         </div>
       </div>
       {loading ? (
-        <div className="text-center p-8">이야기를 불러오는 중...</div>
+        <SkeletonCardGrid count={16} />
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
@@ -296,6 +348,12 @@ const Community = () => {
                   story={story}
                   onStoryClick={handleStoryClick}
                   likesCount={story.likesCount}
+                  commentsCount={(story as any).commentsCount}
+                  viewsCount={(story as any).view_count}
+                  genre={(story as any).genre}
+                  description={(story as any).description}
+                  readTime={(story as any).content ? calculateReadTime((story as any).content) : undefined}
+                  preview={(story as any).content ? extractFirstParagraph((story as any).content) : undefined}
                   overridePriceText={story.isOwned ? "작가님의 글" : undefined}
                   remainingTime={story.isPurchased && story.remainingDays ? `${story.remainingDays}일 남음` : undefined}
                 />
@@ -305,7 +363,7 @@ const Community = () => {
             )}
           </div>
 
-          {totalPages > 1 && ( // Only show pagination if there's more than one page
+          {totalPagesForFiltered > 1 && ( // Only show pagination if there's more than one page
             <div className="flex justify-center items-center space-x-4 mt-8">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -315,11 +373,11 @@ const Community = () => {
                 이전
               </button>
               <span className="text-ink dark:text-pale-lavender">
-                페이지 {currentPage} / {totalPages}
+                페이지 {currentPage} / {totalPagesForFiltered}
               </span>
               <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => Math.min(totalPagesForFiltered, prev + 1))}
+                disabled={currentPage === totalPagesForFiltered}
                 className="px-4 py-2 border rounded-lg bg-primary-accent/10 dark:bg-dark-accent/10 text-ink dark:text-pale-lavender border-ink/20 dark:border-pale-lavender/20 hover:bg-primary-accent dark:hover:bg-dark-accent hover:text-white transition-colors duration-200 disabled:opacity-50"
               >
                 다음

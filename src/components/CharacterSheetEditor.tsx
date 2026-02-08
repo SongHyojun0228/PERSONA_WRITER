@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useProjectContext } from '../context/ProjectContext';
 import { type Character } from '../data/mock';
 import { XIcon } from './Icons';
+import { CharacterArcSection } from './CharacterArcSection';
 
 const CharacterForm = ({ character, onSave }: { character: Character, onSave: (updatedCharacter: Character) => void }) => {
     const [formData, setFormData] = useState(character);
@@ -36,6 +37,11 @@ const CharacterForm = ({ character, onSave }: { character: Character, onSave: (u
             <div className="space-y-2">
                 <label className="text-sm font-medium">상세 설명</label>
                 <textarea name="description" value={formData.description} onChange={handleChange} onBlur={handleBlur} rows={10} className="w-full p-2 rounded bg-paper dark:bg-midnight border border-ink/20 dark:border-pale-lavender/20" />
+            </div>
+
+            {/* Character Arc Section */}
+            <div className="border-t border-ink/10 dark:border-pale-lavender/10 pt-6">
+                <CharacterArcSection characterId={character.id} />
             </div>
         </div>
     );

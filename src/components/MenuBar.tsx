@@ -5,6 +5,9 @@ import {
   ListOrderedIcon,
   SpellCheckIcon,
   ConsistencyCheckIcon,
+  LinkIcon,
+  QuoteIcon,
+  MinusIcon,
 } from './Icons';
 import { useProjectContext } from '../context/ProjectContext';
 
@@ -98,7 +101,44 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
       </button>
       
       <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
-      
+
+      {/* Link */}
+      <button
+        onClick={() => {
+          const url = window.prompt('링크 URL을 입력하세요');
+          if (url) {
+            editor.chain().focus().setLink({ href: url }).run();
+          }
+        }}
+        className={`p-2 rounded ${editor.isActive('link') ? 'bg-primary-accent/20 dark:bg-dark-accent/30' : ''}`}
+        aria-label="Insert link"
+        title="링크 삽입"
+      >
+        <LinkIcon className="w-5 h-5" />
+      </button>
+
+      {/* Blockquote */}
+      <button
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        className={`p-2 rounded ${editor.isActive('blockquote') ? 'bg-primary-accent/20 dark:bg-dark-accent/30' : ''}`}
+        aria-label="Blockquote"
+        title="인용구"
+      >
+        <QuoteIcon className="w-5 h-5" />
+      </button>
+
+      {/* Horizontal Rule */}
+      <button
+        onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        className="p-2 rounded"
+        aria-label="Horizontal rule"
+        title="구분선"
+      >
+        <MinusIcon className="w-5 h-5" />
+      </button>
+
+      <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
+
       {/* Color picker */}
       <div className="relative group p-1">
         <button className="p-1 rounded text-xl flex items-center justify-center" aria-label="Text color">

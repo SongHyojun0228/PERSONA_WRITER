@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom'; // Import useNavigate
+import { useParams, Link } from 'react-router-dom';
 import { LikeButton } from '../components/LikeButton';
 import { CommentSection } from '../components/CommentSection';
-import { Modal } from '../components/Modal'; // Import Modal
-import { useAuth } from '../context/AuthContext'; // Import useAuth
-import { PencilIcon } from '../components/Icons'; // Import PencilIcon for edit button
+import { Modal } from '../components/Modal';
+import { useAuth } from '../context/AuthContext';
+import { PencilIcon, DownloadIcon } from '../components/Icons';
+import { supabase } from '../lib/supabaseClient';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import { LoadingBar } from '../components/LoadingBar';
+import { generateEpub, downloadEpub } from '../lib/epubGenerator';
 
 interface PublishedStory {
   id: string;
@@ -49,6 +53,44 @@ const StoryViewerPage = () => {
 
     fetchStory();
   }, [id]);
+
+  // Track story view
+  useEffect(() => {
+    const trackView = async () => {
+      if (!id || !session?.user?.id) return;
+
+      try {
+        // Insert view record (upsert to prevent duplicates per user)
+        await supabase
+          .from('story_views')
+          .upsert({
+            published_story_id: id,
+            user_id: session.user.id,
+            viewed_at: new Date().toISOString()
+          }, {
+            onConflict: 'published_story_id,user_id'
+          });
+
+        // Increment view_count on published_stories
+        const { data: currentStory } = await supabase
+          .from('published_stories')
+          .select('view_count')
+          .eq('id', id)
+          .single();
+
+        if (currentStory) {
+          await supabase
+            .from('published_stories')
+            .update({ view_count: (currentStory.view_count || 0) + 1 })
+            .eq('id', id);
+        }
+      } catch (error) {
+        console.error('Error tracking view:', error);
+      }
+    };
+
+    trackView();
+  }, [id, session]);
 
   const executeEditStory = async () => {
     if (!story || !session) return;
@@ -95,10 +137,43 @@ const StoryViewerPage = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleDownloadEpub = async () => {
+    if (!story) return;
+
+    try {
+      // Generate EPUB with story content
+      const blob = await generateEpub(
+        {
+          title: story.title,
+          author: story.profiles.username,
+          language: 'ko',
+        },
+        [{
+          title: story.title,
+          content: story.content,
+        }]
+      );
+
+      // Download
+      downloadEpub(blob, story.title);
+      alert('EPUB 파일이 다운로드되었습니다!');
+    } catch (error) {
+      console.error('EPUB 생성 오류:', error);
+      alert('EPUB 파일 생성 중 오류가 발생했습니다.');
+    }
+  };
+
   const isAuthor = session?.user?.id === story?.user_id;
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">이야기를 불러오는 중...</div>;
+    return (
+      <>
+        <LoadingBar isLoading={loading} />
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingSpinner size="lg" text="이야기를 불러오는 중..." />
+        </div>
+      </>
+    );
   }
 
   if (!story) {
@@ -150,8 +225,16 @@ const StoryViewerPage = () => {
         />
 
         <section className="mt-8">
-            <div className="flex justify-center">
+            <div className="flex justify-center items-center space-x-4">
               <LikeButton storyId={story.id} />
+              <button
+                onClick={handleDownloadEpub}
+                className="flex items-center space-x-2 px-4 py-2 bg-primary-accent/10 dark:bg-dark-accent/10 text-primary-accent dark:text-dark-accent rounded-lg hover:bg-primary-accent hover:text-white dark:hover:bg-dark-accent transition-colors"
+                title="E-Book 다운로드"
+              >
+                <DownloadIcon className="w-5 h-5" />
+                <span className="font-medium">E-Book 다운로드</span>
+              </button>
             </div>
             <CommentSection storyId={story.id} />
         </section>

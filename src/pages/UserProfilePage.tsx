@@ -3,10 +3,14 @@ import { useParams } from 'react-router-dom';
 import PublishedStoryCard from '../components/PublishedStoryCard';
 import { Header } from '../components/layout/Header';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabaseClient'; // Import Supabase client
+import { supabase } from '../lib/supabaseClient';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import { LoadingBar } from '../components/LoadingBar';
 
 interface UserProfile {
     username: string;
+    bio?: string;
+    profile_image_url?: string;
 }
 
 interface PublishedStory {
@@ -28,6 +32,8 @@ const UserProfilePage = () => {
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [isSelf, setIsSelf] = useState(false);
     const [subscribing, setSubscribing] = useState(false);
+    const [totalViews, setTotalViews] = useState(0);
+    const [followerCount, setFollowerCount] = useState(0);
 
     // Fetch public data that doesn't require auth
     useEffect(() => {
@@ -44,12 +50,29 @@ const UserProfilePage = () => {
                 const storiesData = await storiesRes.json();
                 setUserProfile(profileData);
                 setStories(storiesData);
+
+                // Calculate total views from published stories
+                const { data: publishedStories } = await supabase
+                    .from('published_stories')
+                    .select('view_count')
+                    .eq('user_id', userId);
+
+                const total = publishedStories?.reduce((sum, s) => sum + (s.view_count || 0), 0) || 0;
+                setTotalViews(total);
+
+                // Get follower count
+                const { count: followerCnt } = await supabase
+                    .from('subscriptions')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('subscribed_to_id', userId);
+
+                setFollowerCount(followerCnt || 0);
             } catch (error) {
                 console.error(error);
-                setUserProfile(null); // Ensure userProfile is null on error
-                setStories([]);       // Ensure stories are empty on error
+                setUserProfile(null);
+                setStories([]);
             } finally {
-                setLoading(false); // Ensure loading is false regardless of success or failure
+                setLoading(false);
             }
         };
         fetchPublicData();
@@ -132,8 +155,11 @@ const UserProfilePage = () => {
     if (authLoading || loading) {
         return (
             <>
+                <LoadingBar isLoading={true} />
                 <Header />
-                <div className="text-center p-8">프로필을 불러오는 중...</div>
+                <div className="min-h-screen flex items-center justify-center">
+                    <LoadingSpinner size="lg" text="프로필을 불러오는 중..." />
+                </div>
             </>
         );
     }
@@ -151,35 +177,77 @@ const UserProfilePage = () => {
         <>
             <Header />
             <div className="max-w-6xl mx-auto p-8">
-                <header className="mb-12 text-center">
-                    <div className="inline-block w-24 h-24 rounded-full bg-gray-300 dark:bg-forest-sub mb-4 flex items-center justify-center">
-                        <span className="text-4xl font-bold text-ink dark:text-pale-lavender inline-flex items-center justify-center h-full w-full">
-                            {userProfile.username.charAt(0).toUpperCase()}
-                        </span>
-                    </div>
-                    <h1 className="text-4xl font-bold">{userProfile.username}</h1>
-                    <div className="mt-4">
-                        {!isSelf && session && (
+                {/* Author Info Section */}
+                <div className="bg-paper dark:bg-forest-sub rounded-lg p-6 mb-6 shadow-md">
+                    <div className="flex items-start space-x-4">
+                        {/* Profile Image */}
+                        <div className="w-20 h-20 rounded-full bg-primary-accent/20 dark:bg-dark-accent/20 overflow-hidden flex-shrink-0">
+                            {userProfile.profile_image_url ? (
+                                <img
+                                    src={userProfile.profile_image_url}
+                                    alt={userProfile.username}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-primary-accent dark:text-dark-accent">
+                                    {userProfile.username.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1">
+                            <h2 className="text-2xl font-bold text-ink dark:text-pale-lavender">{userProfile.username}</h2>
+                            {userProfile.bio && (
+                                <p className="text-ink/70 dark:text-pale-lavender/70 mt-2">{userProfile.bio}</p>
+                            )}
+
+                            {/* Statistics */}
+                            <div className="flex space-x-6 mt-4">
+                                <div>
+                                    <span className="font-bold text-lg text-ink dark:text-pale-lavender">{stories.length}</span>
+                                    <span className="text-sm text-ink/60 dark:text-pale-lavender/60 ml-1">작품</span>
+                                </div>
+                                <div>
+                                    <span className="font-bold text-lg text-ink dark:text-pale-lavender">{totalViews.toLocaleString()}</span>
+                                    <span className="text-sm text-ink/60 dark:text-pale-lavender/60 ml-1">조회수</span>
+                                </div>
+                                <div>
+                                    <span className="font-bold text-lg text-ink dark:text-pale-lavender">{followerCount}</span>
+                                    <span className="text-sm text-ink/60 dark:text-pale-lavender/60 ml-1">팔로워</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CTA Button */}
+                        {isSelf ? (
+                            <button
+                                onClick={() => window.location.href = '/dashboard'}
+                                className="px-4 py-2 bg-primary-accent dark:bg-dark-accent text-white dark:text-midnight rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
+                            >
+                                새 작품 쓰기
+                            </button>
+                        ) : session && (
                             isSubscribed ? (
                                 <button
                                     onClick={handleUnsubscribe}
                                     disabled={subscribing}
-                                    className="px-6 py-2 border border-ink/20 dark:border-pale-lavender/20 text-ink dark:text-pale-lavender font-semibold rounded-full hover:bg-ink/5 dark:hover:bg-pale-lavender/10 transition-colors disabled:opacity-50"
+                                    className="px-4 py-2 border-2 border-primary-accent dark:border-dark-accent text-primary-accent dark:text-dark-accent rounded-lg hover:bg-primary-accent/10 dark:hover:bg-dark-accent/10 transition-colors disabled:opacity-50 whitespace-nowrap"
                                 >
-                                    {subscribing ? '처리 중...' : '구독 중'}
+                                    {subscribing ? '처리 중...' : '팔로우 중'}
                                 </button>
                             ) : (
                                 <button
                                     onClick={handleSubscribe}
                                     disabled={subscribing}
-                                    className="px-6 py-2 bg-primary-accent text-white font-semibold rounded-full hover:bg-opacity-90 transition-colors disabled:opacity-50"
+                                    className="px-4 py-2 border-2 border-primary-accent dark:border-dark-accent text-primary-accent dark:text-dark-accent rounded-lg hover:bg-primary-accent hover:text-white dark:hover:bg-dark-accent dark:hover:text-midnight transition-colors disabled:opacity-50 whitespace-nowrap"
                                 >
-                                    {subscribing ? '처리 중...' : '구독하기'}
+                                    {subscribing ? '처리 중...' : '팔로우'}
                                 </button>
                             )
                         )}
                     </div>
-                </header>
+                </div>
 
                 <main>
                     <h2 className="text-2xl font-bold mb-6">작성한 이야기</h2>
@@ -188,7 +256,7 @@ const UserProfilePage = () => {
                             {stories.map(story => <PublishedStoryCard key={story.id} story={{...story, is_paid: false}} onStoryClick={() => {}} />)}
                         </div>
                     ) : (
-                        <p className="text-center text-ink/60">아직 작성한 이야기가 없습니다.</p>
+                        <p className="text-center text-ink/60 dark:text-pale-lavender/60">아직 작성한 이야기가 없습니다.</p>
                     )}
                 </main>
             </div>

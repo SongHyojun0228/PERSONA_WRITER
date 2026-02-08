@@ -3,11 +3,13 @@ import { useEditorContext } from '../../context/EditorContext';
 import { useMemo } from 'react';
 import { AIChat } from '../AIChat';
 import { type Foreshadow } from '../../data/mock';
-import { XIcon, PublishIcon, PaintBrushIcon } from '../Icons';
+import { XIcon, PublishIcon, PaintBrushIcon, DownloadIcon } from '../Icons';
+import { calculateReadTime } from '../../lib/utils';
 
 interface RightSidebarProps {
     onPublish: () => void;
     onGenerateCover: () => void;
+    onExportEpub: () => void;
 }
 
 const StatCard = ({ label, value }: { label: string, value: string | number }) => (
@@ -46,7 +48,7 @@ const PlotPointItem = ({ foreshadow, onResolve, onDelete }: {
     </li>
 );
 
-export const RightSidebar = ({ onPublish, onGenerateCover }: RightSidebarProps) => {
+export const RightSidebar = ({ onPublish, onGenerateCover, onExportEpub }: RightSidebarProps) => {
     const { project, resolveForeshadow, deleteForeshadow } = useProjectContext();
     const { editorContent } = useEditorContext();
 
@@ -58,6 +60,7 @@ export const RightSidebar = ({ onPublish, onGenerateCover }: RightSidebarProps) 
 
     const charCountWithSpaces = textContent.length;
     const charCountWithoutSpaces = textContent.replace(/\s/g, '').length;
+    const readTime = useMemo(() => calculateReadTime(editorContent), [editorContent]);
 
     const openForeshadows = project?.foreshadows?.filter(f => f.status === 'open') || [];
     const closedForeshadows = project?.foreshadows?.filter(f => f.status === 'closed') || [];
@@ -72,12 +75,19 @@ export const RightSidebar = ({ onPublish, onGenerateCover }: RightSidebarProps) 
                     <PublishIcon className="w-5 h-5 mr-2" />
                     현재 글 발행하기
                 </button>
-                <button 
+                <button
                     onClick={onGenerateCover}
                     className="w-full flex items-center justify-center p-3 rounded-lg bg-dark-accent text-white hover:bg-dark-accent/90 transition-colors font-bold"
                 >
                     <PaintBrushIcon />
                     표지 생성하기
+                </button>
+                <button
+                    onClick={onExportEpub}
+                    className="w-full flex items-center justify-center p-3 rounded-lg bg-green-600 dark:bg-green-700 text-white hover:bg-green-700 dark:hover:bg-green-800 transition-colors font-bold"
+                >
+                    <DownloadIcon className="w-5 h-5 mr-2" />
+                    EPUB 내보내기
                 </button>
             </div>
             <div>
@@ -85,6 +95,7 @@ export const RightSidebar = ({ onPublish, onGenerateCover }: RightSidebarProps) 
                 <div className="space-y-4">
                   <StatCard label="글자 수 (공백 포함)" value={charCountWithSpaces.toLocaleString()} />
                   <StatCard label="글자 수 (공백 제외)" value={charCountWithoutSpaces.toLocaleString()} />
+                  <StatCard label="예상 읽기 시간" value={`약 ${readTime}분`} />
                 </div>
             </div>
             <div>

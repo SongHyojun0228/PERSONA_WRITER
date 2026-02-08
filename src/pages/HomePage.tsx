@@ -9,6 +9,8 @@ import { NotificationBell } from '../components/NotificationBell';
 import { ThemeToggle } from '../components/ThemeToggle';
 import spiritIcon from '../assets/spirit.png';
 import { InspirationShopModal } from '../components/InspirationShopModal'; // Import InspirationShopModal
+import { LoadingBar } from '../components/LoadingBar';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 interface ProjectCardProps {
   id: string;
@@ -234,12 +236,15 @@ export const HomePage = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeView === 'projects' && (
           <div>
+            <LoadingBar isLoading={loading} />
             <div className="mb-8">
               <h1 className="text-4xl font-extrabold text-primary-accent dark:text-dark-accent">{username}님 작품 목록</h1>
               <p className="text-lg mt-2 text-ink/60 dark:text-pale-lavender/60">계속해서 당신의 이야기를 만들어나가세요.</p>
             </div>
             {loading ? (
-                <div className="text-center p-8">프로젝트 불러오는 중...</div>
+                <div className="flex items-center justify-center p-8">
+                  <LoadingSpinner size="lg" text="프로젝트를 불러오는 중..." />
+                </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {projects.map((project) => (

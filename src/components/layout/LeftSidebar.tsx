@@ -12,6 +12,8 @@ import {
   UserGroupIcon,
   PencilIcon,
   CombineIcon,
+  BoardIcon,
+  TimelineIcon,
 } from "../Icons";
 import {
   DndContext,
@@ -280,6 +282,22 @@ export const LeftSidebar = () => {
         >
           <img src="/relationship.png" alt="인물 관계" className="h-5 w-5 mr-3" />
           <span>인물 관계</span>
+        </NavButton>
+
+        <NavButton
+          onClick={() => setActiveView({ type: 'plotBoard' })}
+          isActive={activeView?.type === 'plotBoard'}
+        >
+          <BoardIcon className="h-5 w-5 mr-3" />
+          <span>플롯 보드</span>
+        </NavButton>
+
+        <NavButton
+          onClick={() => setActiveView({ type: 'timeline' })}
+          isActive={activeView?.type === 'timeline'}
+        >
+          <TimelineIcon className="h-5 w-5 mr-3" />
+          <span>타임라인</span>
         </NavButton>
 
         <div>
