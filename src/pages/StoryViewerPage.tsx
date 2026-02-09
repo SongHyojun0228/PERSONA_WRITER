@@ -198,7 +198,7 @@ const StoryViewerPage = () => {
             </button>
         )}
       </header>
-      <div className="max-w-4xl mx-auto p-8">
+      <div className="max-w-4xl mx-auto p-4 sm:p-8">
         {story.cover_image_url ? (
           <img src={story.cover_image_url} alt={`${story.title} cover`} className="w-full h-96 object-cover rounded-lg mb-8" />
         ) : (
@@ -207,7 +207,7 @@ const StoryViewerPage = () => {
 
         <div className="mb-12"> {/* Container for title and meta, increased bottom margin */}
             <div className="flex justify-between items-center mb-6"> {/* Increased bottom margin for flex container */}
-                <h1 className="text-5xl font-extrabold flex-grow mr-8 leading-tight text-primary-accent dark:text-dark-accent">{story.title}</h1> {/* Title on left, added right margin, adjusted line height and color */}
+                <h1 className="text-2xl sm:text-5xl font-extrabold flex-grow mr-4 sm:mr-8 leading-tight text-primary-accent dark:text-dark-accent">{story.title}</h1> {/* Title on left, added right margin, adjusted line height and color */}
                 <div className="text-right flex-shrink-0"> {/* Meta on right */}
                     <p className="text-lg font-semibold text-primary-accent dark:text-dark-accent">{story.profiles.username}</p>
                     <p className="text-sm text-ink/40 mt-1">

@@ -10,10 +10,11 @@ import { MyPage } from './pages/MyPage';
 import { NoticesPage } from './pages/NoticesPage';
 import { useTheme } from './hooks/useTheme';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { UsernameSetupModal } from './components/UsernameSetupModal';
 
 // Component to handle protected routes
 const AppRoutes = () => {
-  const { session, loading } = useAuth();
+  const { session, loading, needsUsername } = useAuth();
   useTheme(); // Apply theme
 
   if (loading) {
@@ -21,6 +22,8 @@ const AppRoutes = () => {
   }
 
   return (
+    <>
+    {needsUsername && <UsernameSetupModal />}
     <Routes>
       <Route path="/login" element={!session ? <AuthPage /> : <Navigate to="/" />} />
       <Route path="/" element={session ? <HomePage /> : <LandingPage />} />
@@ -31,6 +34,7 @@ const AppRoutes = () => {
       <Route path="/search" element={<SearchPage />} />
       <Route path="/notices" element={<NoticesPage />} />
     </Routes>
+    </>
   );
 }
 

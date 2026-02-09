@@ -8,7 +8,9 @@ interface AuthContextType {
   username: string | null;
   loading: boolean;
   inspirationCount: number | null;
-  refreshUserProfile: () => Promise<void>; // Add refreshUserProfile to the interface
+  needsUsername: boolean;
+  setUsername: (username: string) => void;
+  refreshUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,6 +41,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) =>  {
     if (user?.id) {
       await fetchAndSetInspirationCount(user.id);
     }
+  };
+
+  // Called after setting username via API - updates local state to reflect new username
+  const handleSetUsername = (newUsername: string) => {
+    setUsername(newUsername);
+    // Update the user object's metadata so needsUsername becomes false
+    setUser(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        user_metadata: { ...prev.user_metadata, username: newUsername },
+      };
+    });
   };
 
   const resolveUsername = (user: User | null): string | null => {
@@ -80,7 +95,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) =>  {
     }
   }, [user]);
 
-  const value = { session, user, username, loading, inspirationCount, refreshUserProfile }; // Include refreshUserProfile
+  // User is logged in but has no username in metadata (e.g. Kakao OAuth without username setup)
+  const needsUsername = !loading && !!session && !user?.user_metadata?.username;
+
+  const value = { session, user, username, loading, inspirationCount, needsUsername, setUsername: handleSetUsername, refreshUserProfile };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

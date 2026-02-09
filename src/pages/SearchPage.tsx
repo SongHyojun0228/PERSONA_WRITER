@@ -58,7 +58,7 @@ const SearchPage = () => {
         <>
             <LoadingBar isLoading={loading} />
             <Header />
-            <div className="max-w-6xl mx-auto p-8">
+            <div className="max-w-6xl mx-auto p-4 sm:p-8">
                 <h1 className="text-3xl font-bold mb-8">
                     '<span className="text-primary-accent dark:text-dark-accent">{query}</span>'에 대한 검색 결과
                 </h1>

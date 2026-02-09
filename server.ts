@@ -33,6 +33,12 @@ app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
+// Helper: resolve username from user metadata with fallback chain
+const resolveUsernameFromMeta = (meta: Record<string, any> | undefined, fallback = "Anonymous"): string => {
+  if (!meta) return fallback;
+  return meta.username || meta.full_name || meta.name || meta.preferred_username || fallback;
+};
+
 // Initialize Google AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -108,7 +114,7 @@ app.get("/api/published-stories", async (req, res) => {
 
       const foundUser = users.find(
         (user) =>
-          user.user_metadata?.username?.toLowerCase() ===
+          resolveUsernameFromMeta(user.user_metadata, "").toLowerCase() ===
           (author_name as string).toLowerCase(),
       );
 
@@ -189,7 +195,7 @@ app.get("/api/published-stories", async (req, res) => {
         }
         return {
           ...restOfStory,
-          profiles: { username: user?.user_metadata?.username || "Anonymous" },
+          profiles: { username: resolveUsernameFromMeta(user?.user_metadata) },
         };
       }),
     );
@@ -244,7 +250,7 @@ app.get("/api/published-stories/:id", async (req, res) => {
     }
     const storyWithUsername = {
       ...story,
-      profiles: { username: user?.user_metadata?.username || "Anonymous" },
+      profiles: { username: resolveUsernameFromMeta(user?.user_metadata) },
     };
     res.json(storyWithUsername);
   } catch (e) {
@@ -320,7 +326,7 @@ app.post("/api/publish", async (req, res) => {
             storyId: newStory.id,
             storyTitle: newStory.title,
             authorId: user.id,
-            authorName: user.user_metadata?.username || "A writer",
+            authorName: resolveUsernameFromMeta(user.user_metadata, "A writer"),
           },
         }));
 
@@ -604,7 +610,7 @@ app.get("/api/users/:userId/profile", async (req, res) => {
       .single();
 
     res.json({
-      username: user.user_metadata?.username || "Anonymous",
+      username: resolveUsernameFromMeta(user.user_metadata),
       bio: profileData?.bio || null,
       profile_image_url: profileData?.profile_image_url || null
     });
@@ -631,7 +637,7 @@ app.get("/api/users/:userId/stories", async (req, res) => {
       // Proceed without a username, the card will handle it
     }
 
-    const authorUsername = author?.user_metadata?.username || "Anonymous";
+    const authorUsername = resolveUsernameFromMeta(author?.user_metadata);
 
     // Then, fetch all stories by this user
     const { data: stories, error } = await supabase
@@ -698,7 +704,7 @@ app.get("/api/users/:userId/subscriptions", async (req, res) => {
             .filter(user => subscribedToIds.includes(user.id))
             .map(user => ({
                 id: user.id,
-                username: user.user_metadata?.username || 'Anonymous',
+                username: resolveUsernameFromMeta(user.user_metadata),
             }));
 
         res.json(subscribedToProfiles);
@@ -1123,7 +1129,7 @@ app.post("/api/published-stories/:id/like", async (req, res) => {
             storyId: published_story_id,
             storyTitle: story.title,
             likerId: likerId,
-            likerUsername: user.user_metadata?.username || 'Someone',
+            likerUsername: resolveUsernameFromMeta(user.user_metadata, 'Someone'),
           }
         });
       }
@@ -1202,7 +1208,7 @@ app.get("/api/published-stories/:id/comments", async (req, res) => {
               userError,
             );
           } else {
-            username = user?.user_metadata?.username || "알 수 없음";
+            username = resolveUsernameFromMeta(user?.user_metadata, "알 수 없음");
           }
         }
         return {
@@ -1266,7 +1272,7 @@ app.post("/api/published-stories/:id/comments", async (req, res) => {
         .json({ error: "Invalid or expired user token. Please log in again." });
     }
     userIdToInsert = user.id;
-    usernameForResponse = user.user_metadata.username || "알 수 없음";
+    usernameForResponse = resolveUsernameFromMeta(user.user_metadata, "알 수 없음");
   }
 
   const { data: newComment, error } = await supabaseUserClient
@@ -1379,7 +1385,7 @@ app.put("/api/comments/:id", async (req, res) => {
   // Attach username to the updated comment before sending it back
   const commentWithUsername = {
     ...updatedComment,
-    profiles: { username: user.user_metadata.username || "알 수 없음" },
+    profiles: { username: resolveUsernameFromMeta(user.user_metadata, "알 수 없음") },
   };
 
   res.status(200).json(commentWithUsername);
@@ -1442,11 +1448,11 @@ app.get("/api/search", async (req, res) => {
       .then(({ data, error }) => {
         if (error) throw error;
         const filteredUsers = data.users.filter((user) =>
-          user.user_metadata?.username?.toLowerCase().includes(lowerCaseQuery),
+          resolveUsernameFromMeta(user.user_metadata, "").toLowerCase().includes(lowerCaseQuery),
         );
         return filteredUsers.map((user) => ({
           id: user.id,
-          username: user.user_metadata?.username,
+          username: resolveUsernameFromMeta(user.user_metadata),
         }));
       });
 
@@ -1468,7 +1474,7 @@ app.get("/api/search", async (req, res) => {
             return {
               ...story,
               profiles: {
-                username: user?.user_metadata?.username || "Anonymous",
+                username: resolveUsernameFromMeta(user?.user_metadata),
               },
             };
           }),
@@ -1736,6 +1742,46 @@ ${context?.characterSheet || "제공되지 않았습니다. 일반적인 캐릭�
 });
 
 
+
+// PUT /api/users/me/username (Set username for current user)
+app.put("/api/users/me/username", async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: "Authorization required" });
+
+  const token = authHeader.split(" ")[1];
+  const userClient = createClient(supabaseUrl!, supabaseKey!, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+
+  const { data: { user }, error: userError } = await userClient.auth.getUser();
+  if (userError || !user) return res.status(401).json({ error: "Invalid token" });
+
+  const { username } = req.body;
+  if (!username || typeof username !== "string" || username.trim().length < 2) {
+    return res.status(400).json({ error: "닉네임은 2자 이상이어야 합니다." });
+  }
+
+  const trimmedUsername = username.trim();
+
+  try {
+    // Update user_metadata
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      user_metadata: { ...user.user_metadata, username: trimmedUsername },
+    });
+    if (updateError) throw updateError;
+
+    // Update profiles table
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .upsert({ id: user.id, username: trimmedUsername }, { onConflict: "id" });
+    if (profileError) throw profileError;
+
+    res.json({ username: trimmedUsername });
+  } catch (error: any) {
+    console.error("Error updating username:", error.message);
+    res.status(500).json({ error: "닉네임 설정에 실패했습니다." });
+  }
+});
 
 app.listen(port, () => {
   console.log(

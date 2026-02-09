@@ -171,7 +171,12 @@ const SortablePageItem = ({
   );
 };
 
-export const LeftSidebar = () => {
+interface LeftSidebarProps {
+  className?: string;
+  onClose?: () => void;
+}
+
+export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
   const {
     project,
     activeView,
@@ -247,12 +252,21 @@ export const LeftSidebar = () => {
 
   if (!project) {
     return (
-      <aside className="w-72 p-4 border-r border-ink/10 dark:border-pale-lavender/10 animate-pulse bg-gray-100 dark:bg-gray-800"></aside>
+      <aside className={className || "w-72 p-4 border-r border-ink/10 dark:border-pale-lavender/10 animate-pulse bg-gray-100 dark:bg-gray-800"}></aside>
     );
   }
 
   return (
-    <aside className="w-72 p-4 border-r border-ink/10 dark:border-pale-lavender/10 flex flex-col">
+    <aside className={className || "w-72 p-4 border-r border-ink/10 dark:border-pale-lavender/10 flex flex-col"}>
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="md:hidden self-end mb-2 p-1 rounded-full hover:bg-ink/10 dark:hover:bg-pale-lavender/10"
+          aria-label="닫기"
+        >
+          <XIcon className="w-5 h-5" />
+        </button>
+      )}
       <h2
         className="text-2xl font-bold mb-6 px-2 truncate"
         title={project.name}

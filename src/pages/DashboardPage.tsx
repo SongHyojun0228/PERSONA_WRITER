@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabaseClient';
 import { type Project } from '../data/mock';
 import { CoverGeneratorModal } from '../components/CoverGeneratorModal';
 import { Modal } from '../components/Modal';
-import { FullscreenIcon, ExitFullscreenIcon } from '../components/Icons';
+import { FullscreenIcon, ExitFullscreenIcon, DocumentTextIcon, PencilIcon, CogIcon } from '../components/Icons';
 import { EditorStatusBar } from '../components/EditorStatusBar';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { LoadingBar } from '../components/LoadingBar';
@@ -37,6 +37,7 @@ const Dashboard = () => {
   const [price, setPrice] = useState(300);
   const [priceError, setPriceError] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [mobilePanel, setMobilePanel] = useState<'left' | 'right' | null>(null);
   const [showEditorTour, setShowEditorTour] = useState(() => {
     return !localStorage.getItem('editor_tour_completed');
   });
@@ -255,10 +256,10 @@ const Dashboard = () => {
     <>
       <div className="flex flex-col h-screen font-sans">
         <Header>
-          <EditorStatusBar />
+          <span className="hidden sm:inline-flex"><EditorStatusBar /></span>
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-2 rounded-lg hover:bg-ink/5 dark:hover:bg-pale-lavender/10 text-ink dark:text-pale-lavender transition-colors"
+            className="hidden md:inline-flex p-2 rounded-lg hover:bg-ink/5 dark:hover:bg-pale-lavender/10 text-ink dark:text-pale-lavender transition-colors"
             title={isFullscreen ? '전체화면 종료 (F11)' : '전체화면 (F11)'}
           >
             {isFullscreen ? (
@@ -268,11 +269,78 @@ const Dashboard = () => {
             )}
           </button>
         </Header>
-        <div className="flex flex-1 overflow-hidden">
-          {!isFullscreen && <LeftSidebar />}
+        <div className="flex flex-1 overflow-hidden relative">
+          {/* Desktop sidebars */}
+          {!isFullscreen && <div className="hidden md:flex"><LeftSidebar /></div>}
           <MainContent />
-          {!isFullscreen && <RightSidebar onPublish={handlePublishClick} onGenerateCover={handleGenerateCover} onExportEpub={handleExportEpub} />}
+          {!isFullscreen && <div className="hidden md:flex"><RightSidebar onPublish={handlePublishClick} onGenerateCover={handleGenerateCover} onExportEpub={handleExportEpub} /></div>}
+
+          {/* Mobile overlay sidebars */}
+          {mobilePanel && (
+            <div
+              className="md:hidden fixed inset-0 z-40 bg-black/50"
+              onClick={() => setMobilePanel(null)}
+            />
+          )}
+          {mobilePanel === 'left' && (
+            <div className="md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-paper dark:bg-forest-primary shadow-xl overflow-y-auto">
+              <LeftSidebar
+                className="w-full p-4 flex flex-col"
+                onClose={() => setMobilePanel(null)}
+              />
+            </div>
+          )}
+          {mobilePanel === 'right' && (
+            <div className="md:hidden fixed inset-y-0 right-0 z-50 w-80 bg-paper dark:bg-forest-primary shadow-xl overflow-y-auto">
+              <RightSidebar
+                className="w-full p-4 grid grid-rows-[auto_auto_auto_1fr] gap-y-6"
+                onClose={() => setMobilePanel(null)}
+                onPublish={handlePublishClick}
+                onGenerateCover={handleGenerateCover}
+                onExportEpub={handleExportEpub}
+              />
+            </div>
+          )}
         </div>
+
+        {/* Mobile bottom tab bar */}
+        {!isFullscreen && (
+          <div className="md:hidden flex border-t border-ink/10 dark:border-pale-lavender/10 bg-paper dark:bg-forest-primary">
+            <button
+              onClick={() => setMobilePanel(mobilePanel === 'left' ? null : 'left')}
+              className={`flex-1 flex flex-col items-center py-2 text-xs transition-colors ${
+                mobilePanel === 'left'
+                  ? 'text-primary-accent dark:text-dark-accent'
+                  : 'text-ink/60 dark:text-pale-lavender/60'
+              }`}
+            >
+              <DocumentTextIcon className="w-5 h-5 mb-0.5" />
+              <span>메뉴</span>
+            </button>
+            <button
+              onClick={() => setMobilePanel(null)}
+              className={`flex-1 flex flex-col items-center py-2 text-xs transition-colors ${
+                mobilePanel === null
+                  ? 'text-primary-accent dark:text-dark-accent'
+                  : 'text-ink/60 dark:text-pale-lavender/60'
+              }`}
+            >
+              <PencilIcon className="w-5 h-5 mb-0.5" />
+              <span>에디터</span>
+            </button>
+            <button
+              onClick={() => setMobilePanel(mobilePanel === 'right' ? null : 'right')}
+              className={`flex-1 flex flex-col items-center py-2 text-xs transition-colors ${
+                mobilePanel === 'right'
+                  ? 'text-primary-accent dark:text-dark-accent'
+                  : 'text-ink/60 dark:text-pale-lavender/60'
+              }`}
+            >
+              <CogIcon className="w-5 h-5 mb-0.5" />
+              <span>도구</span>
+            </button>
+          </div>
+        )}
       </div>
       {showEditorTour && !loading && project && (
         <EditorTooltips

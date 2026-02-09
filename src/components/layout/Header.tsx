@@ -17,16 +17,16 @@ export const Header = ({ children }: HeaderProps) => {
   return (
     <header className="flex justify-between items-center p-4 border-b border-ink/10 dark:border-pale-lavender/10">
       <Link to="/">
-        <h1 className="text-xl font-bold text-primary-accent dark:text-dark-accent">
+        <h1 className="text-lg sm:text-xl font-bold text-primary-accent dark:text-dark-accent whitespace-nowrap">
           Persona Writer
         </h1>
       </Link>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 sm:space-x-4">
         {children}
         {username && (
           <>
-            <Link to="/my-page" className="flex items-center space-x-2 text-ink dark:text-pale-lavender hover:text-primary-accent dark:hover:text-dark-accent transition-colors duration-200">
+            <Link to="/my-page" className="hidden sm:flex items-center space-x-2 text-ink dark:text-pale-lavender hover:text-primary-accent dark:hover:text-dark-accent transition-colors duration-200">
               <span className="font-medium">{username}</span>
             </Link>
             {inspirationCount !== null && (

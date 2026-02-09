@@ -275,26 +275,28 @@ export const MyPage = () => {
     return (
       <>
         <LoadingBar isLoading={loading} />
-        <div className="min-h-screen p-8 flex items-center justify-center">
+        <div className="min-h-screen p-4 sm:p-8 flex items-center justify-center">
           <LoadingSpinner size="lg" text="작품 목록을 불러오는 중..." />
         </div>
       </>
     );
 
   return (
-    <div className="min-h-screen p-8">
-      <header className="mb-8 flex justify-between items-center border-b pb-8">
-        <Link to="/">
-          <h1 className="text-xl font-bold">Persona Writer</h1>
-        </Link>
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold flex items-center justify-center space-x-2">
+    <div className="min-h-screen p-4 sm:p-8">
+      <header className="mb-8 border-b pb-8">
+        <div className="flex justify-between items-center mb-4 sm:mb-0">
+          <Link to="/">
+            <h1 className="text-xl font-bold">Persona Writer</h1>
+          </Link>
+          <div className="hidden sm:block w-48"></div>
+        </div>
+        <div className="text-center mt-2 sm:mt-0 sm:-translate-y-8">
+          <h1 className="text-2xl sm:text-4xl font-extrabold flex items-center justify-center space-x-2">
             <span>{username}님 작품</span>
-            <img src={spiritIcon} alt="Inspiration" className="h-6 w-6" />
-            <span className="text-2xl">{inspirationCount}</span>
+            <img src={spiritIcon} alt="Inspiration" className="h-5 w-5 sm:h-6 sm:w-6" />
+            <span className="text-lg sm:text-2xl">{inspirationCount}</span>
           </h1>
         </div>
-        <div className="w-48"></div>
       </header>
 
       <main>

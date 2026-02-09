@@ -10,12 +10,13 @@ export const NotificationBell = () => {
     const [isOpen, setIsOpen] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
-    const fetchNotifications = useCallback(async () => { // Wrap fetchNotifications in useCallback
-        if (!session) return;
+    const fetchNotifications = useCallback(async () => {
+        if (!session?.access_token) return;
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notifications`, {
                 headers: { 'Authorization': `Bearer ${session.access_token}` },
             });
+            if (response.status === 401) return; // Token expired or invalid, silently skip
             if (!response.ok) throw new Error('Failed to fetch notifications');
             const data: Notification[] = await response.json();
             setNotifications(data);

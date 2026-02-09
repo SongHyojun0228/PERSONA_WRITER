@@ -10,6 +10,8 @@ interface RightSidebarProps {
     onPublish: () => void;
     onGenerateCover: () => void;
     onExportEpub: () => void;
+    className?: string;
+    onClose?: () => void;
 }
 
 const StatCard = ({ label, value }: { label: string, value: string | number }) => (
@@ -48,7 +50,7 @@ const PlotPointItem = ({ foreshadow, onResolve, onDelete }: {
     </li>
 );
 
-export const RightSidebar = ({ onPublish, onGenerateCover, onExportEpub }: RightSidebarProps) => {
+export const RightSidebar = ({ onPublish, onGenerateCover, onExportEpub, className, onClose }: RightSidebarProps) => {
     const { project, resolveForeshadow, deleteForeshadow } = useProjectContext();
     const { editorContent } = useEditorContext();
 
@@ -66,7 +68,16 @@ export const RightSidebar = ({ onPublish, onGenerateCover, onExportEpub }: Right
     const closedForeshadows = project?.foreshadows?.filter(f => f.status === 'closed') || [];
 
     return (
-        <aside className="w-96 p-6 border-l border-ink/10 dark:border-pale-lavender/10 grid grid-rows-[auto_auto_auto_1fr] gap-y-8">
+        <aside className={className || "w-96 p-6 border-l border-ink/10 dark:border-pale-lavender/10 grid grid-rows-[auto_auto_auto_1fr] gap-y-8"}>
+             {onClose && (
+               <button
+                 onClick={onClose}
+                 className="md:hidden self-end p-1 rounded-full hover:bg-ink/10 dark:hover:bg-pale-lavender/10"
+                 aria-label="닫기"
+               >
+                 <XIcon className="w-5 h-5" />
+               </button>
+             )}
              <div className="space-y-3">
                 <button
                     onClick={onPublish}
