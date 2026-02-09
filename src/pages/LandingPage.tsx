@@ -126,6 +126,55 @@ export const LandingPage = () => {
         </div>
       </section>
 
+      {/* PWA Install Section */}
+      <section className="py-20 md:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl md:text-4xl font-bold text-primary-accent dark:text-dark-accent">
+              앱으로 설치하기
+            </h3>
+            <p className="mt-4 text-lg text-ink/60 dark:text-pale-lavender/60">
+              앱스토어 없이, 브라우저에서 바로 설치하세요. 앱처럼 빠르고 편리하게 사용할 수 있습니다.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="p-6 rounded-2xl bg-primary-accent/5 dark:bg-dark-accent/10 text-center">
+              <div className="w-12 h-12 mx-auto rounded-xl bg-primary-accent/10 dark:bg-dark-accent/20 text-primary-accent dark:text-dark-accent flex items-center justify-center mb-4">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h4 className="text-lg font-bold mb-2">Android</h4>
+              <p className="text-sm text-ink/70 dark:text-pale-lavender/70 leading-relaxed">
+                Chrome 메뉴(⋮)에서<br /><strong>"앱 설치"</strong>를 선택하세요
+              </p>
+            </div>
+            <div className="p-6 rounded-2xl bg-primary-accent/5 dark:bg-dark-accent/10 text-center">
+              <div className="w-12 h-12 mx-auto rounded-xl bg-primary-accent/10 dark:bg-dark-accent/20 text-primary-accent dark:text-dark-accent flex items-center justify-center mb-4">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h4 className="text-lg font-bold mb-2">iPhone / iPad</h4>
+              <p className="text-sm text-ink/70 dark:text-pale-lavender/70 leading-relaxed">
+                Safari 공유 버튼(□↑)에서<br /><strong>"홈 화면에 추가"</strong>를 선택하세요
+              </p>
+            </div>
+            <div className="p-6 rounded-2xl bg-primary-accent/5 dark:bg-dark-accent/10 text-center">
+              <div className="w-12 h-12 mx-auto rounded-xl bg-primary-accent/10 dark:bg-dark-accent/20 text-primary-accent dark:text-dark-accent flex items-center justify-center mb-4">
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h4 className="text-lg font-bold mb-2">PC (Chrome / Edge)</h4>
+              <p className="text-sm text-ink/70 dark:text-pale-lavender/70 leading-relaxed">
+                주소창 오른쪽의<br /><strong>설치 아이콘(⊕)</strong>을 클릭하세요
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

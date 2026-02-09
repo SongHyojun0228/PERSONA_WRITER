@@ -7,6 +7,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green)](https://supabase.com/)
 [![Gemini AI](https://img.shields.io/badge/Gemini-AI-orange)](https://ai.google.dev/)
+[![PWA](https://img.shields.io/badge/PWA-supported-blueviolet)](https://persona-writer.vercel.app/)
 
 **Persona Writer**는 AI 기반의 차세대 글쓰기 플랫폼입니다. 작가들이 체계적으로 세계관을 구축하고, 매력적인 캐릭터를 창조하며, 일관성 있는 스토리를 완성할 수 있도록 돕습니다.
 
@@ -66,6 +67,41 @@
 - **프로필 페이지**: 작가별 작품 모아보기
 - **반응형 디자인**: 모바일, 태블릿, 데스크톱 지원
 - **로딩 인디케이터**: 프로그레스 바와 스피너로 시각적 피드백
+- **온보딩 시스템**: 처음 가입한 사용자를 위한 단계별 가이드 투어
+- **에디터 투어**: 에디터 진입 시 주요 기능 하이라이트 안내
+
+### 📱 PWA (앱 설치) 지원
+- **홈 화면에 추가**: 모바일/데스크톱에서 앱처럼 설치 가능
+- **오프라인 캐싱**: 이미지와 API 응답을 캐싱하여 빠른 로딩
+- **자동 업데이트**: 새 버전 배포 시 서비스워커 자동 갱신
+- **Standalone 모드**: 브라우저 주소창 없이 앱처럼 실행
+
+---
+
+## 📲 앱 다운로드 (PWA 설치)
+
+Persona Writer는 **PWA(Progressive Web App)** 를 지원합니다. 별도의 앱스토어 없이 브라우저에서 바로 앱으로 설치할 수 있습니다.
+
+### Android (Chrome)
+1. Chrome에서 [persona-writer.vercel.app](https://persona-writer.vercel.app) 접속
+2. 주소창 오른쪽 **설치** 아이콘 클릭, 또는 **메뉴(⋮) > 앱 설치** 선택
+3. "설치" 버튼 클릭
+4. 홈 화면에 Persona Writer 아이콘이 추가됩니다
+
+### iOS (Safari)
+1. Safari에서 [persona-writer.vercel.app](https://persona-writer.vercel.app) 접속
+2. 하단 **공유 버튼**(□↑) 탭
+3. **"홈 화면에 추가"** 선택
+4. "추가" 버튼 탭
+5. 홈 화면에서 앱처럼 실행할 수 있습니다
+
+### PC (Chrome / Edge)
+1. Chrome 또는 Edge에서 [persona-writer.vercel.app](https://persona-writer.vercel.app) 접속
+2. 주소창 오른쪽의 **설치(⊕)** 아이콘 클릭
+3. "설치" 버튼 클릭
+4. 바탕화면/시작메뉴에서 앱으로 실행 가능합니다
+
+> 설치 후에는 브라우저 없이 독립 앱처럼 실행되며, 새 버전이 나오면 자동으로 업데이트됩니다.
 
 ---
 
@@ -80,6 +116,7 @@
 - **React Flow** - 노드 기반 관계도
 - **@dnd-kit** - 드래그앤드롭 라이브러리
 - **JSZip** - EPUB 생성
+- **vite-plugin-pwa** - PWA 지원 (Workbox 서비스워커)
 
 ### Backend
 - **Node.js** - 런타임

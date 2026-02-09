@@ -33,6 +33,15 @@ const steps = [
     ),
   },
   {
+    title: '앱으로 설치하기',
+    description: 'Persona Writer를 앱처럼 사용할 수 있어요!\n\nAndroid: Chrome 메뉴(⋮) > "앱 설치"\niPhone: Safari 공유(□↑) > "홈 화면에 추가"\nPC: 주소창 오른쪽 설치 아이콘(⊕) 클릭',
+    icon: (
+      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+      </svg>
+    ),
+  },
+  {
     title: '첫 작품을 시작해보세요!',
     description: '준비가 되셨나요?\n작품 목록에서 "새 작품 시작하기"를 눌러\n당신만의 이야기를 시작해보세요.',
     icon: (
