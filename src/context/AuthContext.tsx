@@ -41,11 +41,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) =>  {
     }
   };
 
+  const resolveUsername = (user: User | null): string | null => {
+    if (!user) return null;
+    const meta = user.user_metadata;
+    return (meta?.username as string)
+      || (meta?.full_name as string)
+      || (meta?.name as string)
+      || (meta?.preferred_username as string)
+      || null;
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user || null);
-      setUsername(session?.user?.user_metadata?.username as string || null);
+      setUsername(resolveUsername(session?.user || null));
       setLoading(false);
     });
 
@@ -53,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) =>  {
     supabase.auth.getSession().then(({ data: { session } }) => {
         setSession(session);
         setUser(session?.user || null);
-        setUsername(session?.user?.user_metadata?.username as string || null);
+        setUsername(resolveUsername(session?.user || null));
         setLoading(false);
     });
 

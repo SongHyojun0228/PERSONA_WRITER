@@ -68,8 +68,9 @@ export const RightSidebar = ({ onPublish, onGenerateCover, onExportEpub }: Right
     return (
         <aside className="w-96 p-6 border-l border-ink/10 dark:border-pale-lavender/10 grid grid-rows-[auto_auto_auto_1fr] gap-y-8">
              <div className="space-y-3">
-                <button 
+                <button
                     onClick={onPublish}
+                    data-tour="publish"
                     className="w-full flex items-center justify-center p-3 rounded-lg bg-primary-accent text-white hover:bg-primary-accent/90 transition-colors font-bold"
                 >
                     <PublishIcon className="w-5 h-5 mr-2" />
@@ -98,7 +99,7 @@ export const RightSidebar = ({ onPublish, onGenerateCover, onExportEpub }: Right
                   <StatCard label="예상 읽기 시간" value={`약 ${readTime}분`} />
                 </div>
             </div>
-            <div>
+            <div data-tour="foreshadow">
                 <h2 className="text-lg font-semibold mb-4 text-ink dark:text-pale-lavender">복선 리스트</h2>
                 <ul className="space-y-3 max-h-48 overflow-y-auto">
                     {openForeshadows.length > 0 || closedForeshadows.length > 0 ? (
@@ -124,7 +125,7 @@ export const RightSidebar = ({ onPublish, onGenerateCover, onExportEpub }: Right
                     )}
                 </ul>
             </div>
-            <div className="flex flex-col min-h-0"> {/* min-h-0 is essential for flex children within a grid row to properly fill space */}
+            <div className="flex flex-col min-h-0" data-tour="ai-assistant">
                  <h2 className="text-lg font-semibold mb-4 text-ink dark:text-pale-lavender">AI 어시스턴트</h2>
                 <AIChat />
             </div>

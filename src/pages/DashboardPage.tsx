@@ -16,6 +16,7 @@ import { EditorStatusBar } from '../components/EditorStatusBar';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { LoadingBar } from '../components/LoadingBar';
 import { generateEpub, downloadEpub } from '../lib/epubGenerator';
+import { EditorTooltips } from '../components/EditorTooltips';
 
 // This is the inner component that renders once the project is loaded
 const Dashboard = () => {
@@ -36,6 +37,9 @@ const Dashboard = () => {
   const [price, setPrice] = useState(300);
   const [priceError, setPriceError] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showEditorTour, setShowEditorTour] = useState(() => {
+    return !localStorage.getItem('editor_tour_completed');
+  });
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
@@ -270,6 +274,14 @@ const Dashboard = () => {
           {!isFullscreen && <RightSidebar onPublish={handlePublishClick} onGenerateCover={handleGenerateCover} onExportEpub={handleExportEpub} />}
         </div>
       </div>
+      {showEditorTour && !loading && project && (
+        <EditorTooltips
+          onComplete={() => {
+            localStorage.setItem('editor_tour_completed', 'true');
+            setShowEditorTour(false);
+          }}
+        />
+      )}
       <CoverGeneratorModal isOpen={isCoverModalOpen} onClose={() => setIsCoverModalOpen(false)} />
       <Modal isOpen={isPublishConfirmModalOpen} onClose={() => setIsPublishConfirmModalOpen(false)} title="게시물 발행 확인">
         <div className="space-y-4">

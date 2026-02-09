@@ -11,6 +11,9 @@ import spiritIcon from '../assets/spirit.png';
 import { InspirationShopModal } from '../components/InspirationShopModal'; // Import InspirationShopModal
 import { LoadingBar } from '../components/LoadingBar';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { OnboardingModal } from '../components/OnboardingModal';
+import { Modal } from '../components/Modal';
+import { Footer } from '../components/Footer';
 
 interface ProjectCardProps {
   id: string;
@@ -102,7 +105,12 @@ export const HomePage = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState<'projects' | 'community'>('community');
-  const [isShopModalOpen, setIsShopModalOpen] = useState(false); // State for modal visibility
+  const [isShopModalOpen, setIsShopModalOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem('onboarding_completed');
+  });
+  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+  const [newProjectTitle, setNewProjectTitle] = useState('');
 
   const fetchProjects = async () => {
     if (!session?.user?.id) return;
@@ -125,27 +133,32 @@ export const HomePage = () => {
     }
   }, [session, activeView]);
 
-  const handleAddNewProject = async () => {
-    const title = prompt("새 작품의 제목을 입력하세요:");
-    if (title && session?.user?.id) {
-      setLoading(true);
-      const { data: projectData, error: projectError } = await supabase
-        .from("projects")
-        .insert({ name: title, user_id: session.user.id })
-        .select().single();
-      if (projectError) { console.error(projectError); setLoading(false); return; }
-      
-      const { error: settingsError } = await supabase.from("pages").insert({
-        project_id: projectData.id,
-        title: "기본 설정",
-        content: `<h1>${title} - 기본 설정</h1>`,
-        type: "SETTINGS",
-      });
-      if (settingsError) { console.error(settingsError); setLoading(false); return; }
+  const handleAddNewProject = () => {
+    setNewProjectTitle('');
+    setIsNewProjectModalOpen(true);
+  };
 
-      setLoading(false);
-      navigate(`/dashboard/${projectData.id}`);
-    }
+  const handleCreateProject = async () => {
+    const title = newProjectTitle.trim();
+    if (!title || !session?.user?.id) return;
+    setIsNewProjectModalOpen(false);
+    setLoading(true);
+    const { data: projectData, error: projectError } = await supabase
+      .from("projects")
+      .insert({ name: title, user_id: session.user.id })
+      .select().single();
+    if (projectError) { console.error(projectError); setLoading(false); return; }
+
+    const { error: settingsError } = await supabase.from("pages").insert({
+      project_id: projectData.id,
+      title: "기본 설정",
+      content: `<h1>${title} - 기본 설정</h1>`,
+      type: "SETTINGS",
+    });
+    if (settingsError) { console.error(settingsError); setLoading(false); return; }
+
+    setLoading(false);
+    navigate(`/dashboard/${projectData.id}`);
   };
 
   const handleEditProject = async (projectId: string, currentTitle: string) => {
@@ -356,11 +369,59 @@ export const HomePage = () => {
         )}
       </main>
 
+      <Footer />
+
+      {/* New Project Modal */}
+      <Modal isOpen={isNewProjectModalOpen} onClose={() => setIsNewProjectModalOpen(false)} title="새 작품 시작하기">
+        <form onSubmit={(e) => { e.preventDefault(); handleCreateProject(); }} className="space-y-6">
+          <div className="space-y-2">
+            <label htmlFor="newProjectTitle" className="block text-sm font-medium text-ink/80 dark:text-pale-lavender/80">
+              작품 제목
+            </label>
+            <input
+              id="newProjectTitle"
+              type="text"
+              value={newProjectTitle}
+              onChange={(e) => setNewProjectTitle(e.target.value)}
+              placeholder="제목을 입력하세요"
+              autoFocus
+              className="w-full p-3 border-2 rounded-lg bg-paper dark:bg-forest-sub border-ink/20 dark:border-pale-lavender/20 focus:border-primary-accent dark:focus:border-dark-accent focus:outline-none"
+            />
+          </div>
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={() => setIsNewProjectModalOpen(false)}
+              className="px-4 py-2 border border-ink/20 dark:border-pale-lavender/20 text-ink dark:text-pale-lavender font-semibold rounded-lg hover:bg-ink/5 dark:hover:bg-pale-lavender/10 transition-colors"
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              disabled={!newProjectTitle.trim()}
+              className="px-4 py-2 bg-primary-accent dark:bg-dark-accent text-white font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              만들기
+            </button>
+          </div>
+        </form>
+      </Modal>
+
       {/* Render the InspirationShopModal */}
       <InspirationShopModal
         isOpen={isShopModalOpen}
         onClose={() => setIsShopModalOpen(false)}
       />
+
+      {/* Onboarding Modal for first-time users */}
+      {showOnboarding && (
+        <OnboardingModal
+          onComplete={() => {
+            localStorage.setItem('onboarding_completed', 'true');
+            setShowOnboarding(false);
+          }}
+        />
+      )}
     </div>
   );
 };

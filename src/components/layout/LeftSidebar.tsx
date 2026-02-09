@@ -38,13 +38,15 @@ const NavButton = ({
   isActive,
   children,
   actionButton,
+  'data-tour': dataTour,
 }: {
   onClick: () => void;
   isActive: boolean;
   children: React.ReactNode;
   actionButton?: React.ReactNode;
+  'data-tour'?: string;
 }) => (
-  <div className="flex items-center group">
+  <div className="flex items-center group" data-tour={dataTour}>
     <div
       onClick={onClick}
       className={`relative flex items-center w-full py-2 text-lg font-medium rounded-lg text-left transition-colors cursor-pointer ${
@@ -271,6 +273,7 @@ export const LeftSidebar = () => {
         <NavButton
           onClick={() => setActiveView({ type: "characterSheet" })}
           isActive={activeView?.type === "characterSheet"}
+          data-tour="character-sheet"
         >
           <UserGroupIcon />
           <span>캐릭터 시트</span>
