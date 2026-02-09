@@ -205,20 +205,20 @@ export const HomePage = () => {
     <div className="min-h-screen bg-paper dark:bg-forest-bg text-ink dark:text-pale-lavender">
       <header className="sticky top-0 z-40 w-full bg-paper/80 dark:bg-forest-bg/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4 border-b border-ink/10 dark:border-pale-lavender/10">
-                <div className="flex items-center space-x-8">
-                    <Link to="/">
-                        <h1 className="text-xl font-bold text-primary-accent dark:text-dark-accent">Persona Writer</h1>
+            <div className="flex justify-between items-center py-3 border-b border-ink/10 dark:border-pale-lavender/10">
+                <div className="flex items-center space-x-4 sm:space-x-8 min-w-0">
+                    <Link to="/" className="flex-shrink-0">
+                        <h1 className="text-lg sm:text-xl font-bold text-primary-accent dark:text-dark-accent whitespace-nowrap">Persona Writer</h1>
                     </Link>
                     <nav className="hidden md:flex items-center space-x-2">
                         <NavLink view="projects">작품 목록</NavLink>
                         <NavLink view="community">이야기 광장</NavLink>
                     </nav>
                 </div>
-                <div className="flex items-center space-x-4 relative">
+                <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
                     {username && (
                       <>
-                        <Link to="/my-page" className="flex items-center space-x-2 text-ink/80 dark:text-pale-lavender/80 hover:text-primary-accent dark:hover:text-dark-accent">
+                        <Link to="/my-page" className="hidden sm:flex items-center text-ink/80 dark:text-pale-lavender/80 hover:text-primary-accent dark:hover:text-dark-accent">
                           <span className="text-sm font-medium">{username}님</span>
                         </Link>
                         {inspirationCount !== null && (
@@ -237,12 +237,22 @@ export const HomePage = () => {
                     <NotificationBell />
                     <button
                         onClick={handleLogout}
-                        className="px-3 py-1.5 text-sm rounded-md text-white bg-red-500 hover:bg-red-600 transition-colors"
+                        className="px-2 py-1.5 sm:px-3 text-xs sm:text-sm rounded-md text-white bg-red-500 hover:bg-red-600 transition-colors whitespace-nowrap"
                     >
                         로그아웃
                     </button>
                 </div>
             </div>
+            {/* Mobile nav tabs */}
+            <nav className="flex md:hidden items-center space-x-1 py-2 border-b border-ink/5 dark:border-pale-lavender/5">
+                <NavLink view="projects">작품 목록</NavLink>
+                <NavLink view="community">이야기 광장</NavLink>
+                {username && (
+                  <Link to="/my-page" className="px-3 py-2 rounded-md text-sm font-medium text-ink/60 dark:text-pale-lavender/60 hover:text-primary-accent dark:hover:text-dark-accent sm:hidden">
+                    마이페이지
+                  </Link>
+                )}
+            </nav>
         </div>
       </header>
       
@@ -251,8 +261,8 @@ export const HomePage = () => {
           <div>
             <LoadingBar isLoading={loading} />
             <div className="mb-8">
-              <h1 className="text-4xl font-extrabold text-primary-accent dark:text-dark-accent">{username}님 작품 목록</h1>
-              <p className="text-lg mt-2 text-ink/60 dark:text-pale-lavender/60">계속해서 당신의 이야기를 만들어나가세요.</p>
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-primary-accent dark:text-dark-accent">{username}님 작품 목록</h1>
+              <p className="text-sm sm:text-lg mt-2 text-ink/60 dark:text-pale-lavender/60">계속해서 당신의 이야기를 만들어나가세요.</p>
             </div>
             {loading ? (
                 <div className="flex items-center justify-center p-8">
@@ -272,7 +282,7 @@ export const HomePage = () => {
         {activeView === 'community' && (
           <div>
             <div className="mb-8">
-                <h2 className="text-4xl font-extrabold text-primary-accent dark:text-dark-accent">이야기 광장</h2>
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-primary-accent dark:text-dark-accent">이야기 광장</h2>
             </div>
             <Community />
           </div>
@@ -283,8 +293,8 @@ export const HomePage = () => {
           <>
             <hr className="my-12 border-ink/10 dark:border-pale-lavender/10" />
             <div className="mb-8">
-              <h2 className="text-4xl font-extrabold text-primary-accent dark:text-dark-accent">제작자의 추천</h2>
-              <p className="text-lg mt-2 text-ink/60 dark:text-pale-lavender/60">매주 새로운 영감을 주는 작품들을 소개합니다.</p>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-primary-accent dark:text-dark-accent">제작자의 추천</h2>
+              <p className="text-sm sm:text-lg mt-2 text-ink/60 dark:text-pale-lavender/60">매주 새로운 영감을 주는 작품들을 소개합니다.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Book 1: 사랑의 생애 */}

@@ -274,7 +274,7 @@ const Community = () => {
   return (
     <div className="max-w-6xl mx-auto">
       <LoadingBar isLoading={loading} />
-      <div className="flex flex-nowrap justify-between items-center mb-4 px-4 gap-3">
+      <div className="flex flex-wrap items-center mb-4 px-4 gap-2 sm:gap-3">
         {/* Sorting Buttons */}
         <div className="flex-shrink-0 flex items-center space-x-2 p-1 rounded-lg bg-gray-200 dark:bg-forest-sub">
           <button
@@ -321,14 +321,14 @@ const Community = () => {
         </div>
 
         {/* Search Input */}
-        <div className="w-1/3 min-w-[200px]">
+        <div className="w-full sm:w-auto sm:flex-1 sm:min-w-[200px] sm:max-w-[300px] sm:ml-auto">
             <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="작품명 또는 작가 이름 검색..."
-                    className="w-full p-2 pl-4 pr-10 border-2 rounded-full bg-paper dark:bg-forest-sub border-ink/10 dark:border-pale-lavender/20 focus:border-primary-accent dark:focus:border-dark-accent focus:outline-none transition-colors"
+                    className="w-full p-2 pl-4 pr-10 text-sm border-2 rounded-full bg-paper dark:bg-forest-sub border-ink/10 dark:border-pale-lavender/20 focus:border-primary-accent dark:focus:border-dark-accent focus:outline-none transition-colors"
                 />
                 <button type="submit" aria-label="Search" className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-ink/50 dark:text-pale-lavender/50 hover:text-primary-accent dark:hover:text-dark-accent">
                     <SearchIcon className="w-4 h-4" />
