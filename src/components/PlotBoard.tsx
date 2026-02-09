@@ -88,7 +88,7 @@ const PlotColumn = ({
   return (
     <div
       ref={setNodeRef}
-      className={`bg-paper/50 dark:bg-midnight/50 p-4 rounded-lg min-h-[400px] flex flex-col transition-all duration-200 ${
+      className={`bg-paper/50 dark:bg-midnight/50 p-4 rounded-lg min-h-[200px] md:min-h-[400px] flex flex-col transition-all duration-200 ${
         isDraggingOver
           ? 'ring-2 ring-primary-accent dark:ring-dark-accent bg-primary-accent/10 dark:bg-dark-accent/10 scale-[1.02]'
           : ''
@@ -298,7 +298,7 @@ export const PlotBoard = () => {
 
       <div className="flex-1 overflow-auto">
         <DndContext collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-3 gap-4 min-w-[900px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {columns.map(column => (
               <PlotColumn
                 key={column.id}

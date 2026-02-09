@@ -71,8 +71,8 @@ export const CharacterSheetEditor = () => {
     const selectedCharacter = characters.find(c => c.id === selectedCharacterId);
 
     return (
-        <div className="flex h-full">
-            <div className="w-64 border-r border-ink/10 dark:border-pale-lavender/10 p-4 space-y-2">
+        <div className="flex flex-col md:flex-row h-full">
+            <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-ink/10 dark:border-pale-lavender/10 p-4 space-y-2 shrink-0 max-h-48 md:max-h-none overflow-y-auto">
                 <button onClick={addCharacter} className="w-full p-2 mb-4 rounded text-white bg-primary-accent dark:bg-dark-accent hover:opacity-90">
                     + 새 캐릭터 추가
                 </button>

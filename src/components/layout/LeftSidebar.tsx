@@ -84,6 +84,7 @@ const SortablePageItem = ({
   handleDeletePage,
   editingPageId,
   setEditingPageId,
+  onClose,
 }: {
   page: Page;
   activeView: ActiveView | null;
@@ -91,6 +92,7 @@ const SortablePageItem = ({
   handleDeletePage: (id: string, title: string) => void;
   editingPageId: string | null;
   setEditingPageId: (id: string | null) => void;
+  onClose?: () => void;
 }) => {
   const { updatePageTitle } = useProjectContext();
   const [editingTitle, setEditingTitle] = useState(page.title);
@@ -125,7 +127,7 @@ const SortablePageItem = ({
     <div ref={setNodeRef} style={style}>
       <NavButton
         isActive={activeView?.type === "page" && activeView.id === page.id}
-        onClick={() => !isEditing && setActiveView({ type: "page", id: page.id })}
+        onClick={() => { if (!isEditing) { setActiveView({ type: "page", id: page.id }); onClose?.(); } }}
         actionButton={
           !isEditing && (
             <>
@@ -193,6 +195,8 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [editingMergedPageId, setEditingMergedPageId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
+  const [isAddPageModalOpen, setIsAddPageModalOpen] = useState(false);
+  const [newPageTitle, setNewPageTitle] = useState("새 페이지");
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -209,9 +213,14 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
   );
 
   const handleAddPage = () => {
-    const title = prompt("새 페이지의 제목을 입력하세요:", "새 페이지");
-    if (title) {
-      addPage(title);
+    setNewPageTitle("새 페이지");
+    setIsAddPageModalOpen(true);
+  };
+
+  const handleConfirmAddPage = () => {
+    if (newPageTitle.trim()) {
+      addPage(newPageTitle.trim());
+      setIsAddPageModalOpen(false);
     }
   };
 
@@ -250,6 +259,11 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
     setEditingMergedPageId(null);
   };
 
+  const handleNavClick = (view: ActiveView) => {
+    setActiveView(view);
+    onClose?.();
+  };
+
   if (!project) {
     return (
       <aside className={className || "w-72 p-4 border-r border-ink/10 dark:border-pale-lavender/10 animate-pulse bg-gray-100 dark:bg-gray-800"}></aside>
@@ -257,26 +271,28 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
   }
 
   return (
-    <aside className={className || "w-72 p-4 border-r border-ink/10 dark:border-pale-lavender/10 flex flex-col"}>
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="md:hidden self-end mb-2 p-1 rounded-full hover:bg-ink/10 dark:hover:bg-pale-lavender/10"
-          aria-label="닫기"
+    <aside className={className || "w-72 p-4 border-r border-ink/10 dark:border-pale-lavender/10 flex flex-col overflow-y-auto"}>
+      <div className="flex items-center justify-between mb-4">
+        <h2
+          className="text-2xl font-bold px-2 truncate"
+          title={project.name}
         >
-          <XIcon className="w-5 h-5" />
-        </button>
-      )}
-      <h2
-        className="text-2xl font-bold mb-6 px-2 truncate"
-        title={project.name}
-      >
-        {project.name}
-      </h2>
-      <nav className="space-y-2">
+          {project.name}
+        </h2>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="md:hidden p-2 rounded-full hover:bg-ink/10 dark:hover:bg-pale-lavender/10"
+            aria-label="닫기"
+          >
+            <XIcon className="w-5 h-5" />
+          </button>
+        )}
+      </div>
+      <nav className="space-y-1 flex-1 overflow-y-auto">
         <NavButton
           onClick={() =>
-            setActiveView({ type: "settings", id: project.settings.id })
+            handleNavClick({ type: "settings", id: project.settings.id })
           }
           isActive={activeView?.type === "settings"}
         >
@@ -285,7 +301,7 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
         </NavButton>
 
         <NavButton
-          onClick={() => setActiveView({ type: "characterSheet" })}
+          onClick={() => handleNavClick({ type: "characterSheet" })}
           isActive={activeView?.type === "characterSheet"}
           data-tour="character-sheet"
         >
@@ -294,7 +310,7 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
         </NavButton>
 
         <NavButton
-          onClick={() => setActiveView({ type: 'relationships' })}
+          onClick={() => handleNavClick({ type: 'relationships' })}
           isActive={activeView?.type === 'relationships'}
         >
           <img src="/relationship.png" alt="인물 관계" className="h-5 w-5 mr-3" />
@@ -302,7 +318,7 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
         </NavButton>
 
         <NavButton
-          onClick={() => setActiveView({ type: 'plotBoard' })}
+          onClick={() => handleNavClick({ type: 'plotBoard' })}
           isActive={activeView?.type === 'plotBoard'}
         >
           <BoardIcon className="h-5 w-5 mr-3" />
@@ -310,7 +326,7 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
         </NavButton>
 
         <NavButton
-          onClick={() => setActiveView({ type: 'timeline' })}
+          onClick={() => handleNavClick({ type: 'timeline' })}
           isActive={activeView?.type === 'timeline'}
         >
           <TimelineIcon className="h-5 w-5 mr-3" />
@@ -361,6 +377,7 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
                       handleDeletePage={handleDeletePage}
                       editingPageId={editingPageId}
                       setEditingPageId={setEditingPageId}
+                      onClose={onClose}
                     />
                   ))}
                 </SortableContext>
@@ -389,7 +406,7 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
                   return (
                     <NavButton
                       key={mergedPage.id}
-                      onClick={() => !isEditing && setActiveView({ type: 'mergedPage', id: mergedPage.id })}
+                      onClick={() => { if (!isEditing) { setActiveView({ type: 'mergedPage', id: mergedPage.id }); onClose?.(); } }}
                       isActive={activeView?.type === 'mergedPage' && activeView.id === mergedPage.id}
                       actionButton={
                         !isEditing && (
@@ -437,6 +454,41 @@ export const LeftSidebar = ({ className, onClose }: LeftSidebarProps = {}) => {
           </div>
         )}
       </nav>
+
+      {/* 새 페이지 추가 모달 */}
+      {isAddPageModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]" onClick={() => setIsAddPageModalOpen(false)}>
+          <div className="bg-paper dark:bg-forest-sub rounded-lg p-6 w-full max-w-sm mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold mb-4 text-ink dark:text-pale-lavender">새 페이지 추가</h3>
+            <input
+              type="text"
+              value={newPageTitle}
+              onChange={(e) => setNewPageTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleConfirmAddPage();
+                if (e.key === 'Escape') setIsAddPageModalOpen(false);
+              }}
+              className="w-full p-2 border-2 rounded-lg bg-paper dark:bg-midnight border-ink/20 dark:border-pale-lavender/20 focus:border-primary-accent dark:focus:border-dark-accent focus:outline-none text-ink dark:text-pale-lavender"
+              placeholder="페이지 제목을 입력하세요"
+              autoFocus
+            />
+            <div className="flex justify-end space-x-2 mt-4">
+              <button
+                onClick={() => setIsAddPageModalOpen(false)}
+                className="px-4 py-2 rounded-lg text-ink dark:text-pale-lavender hover:bg-ink/5 dark:hover:bg-pale-lavender/10"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirmAddPage}
+                className="px-4 py-2 bg-primary-accent text-white rounded-lg hover:bg-primary-accent/90"
+              >
+                추가
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };

@@ -137,28 +137,28 @@ export const CharacterRelationshipManager = () => {
             <h2 className="text-2xl font-bold mb-6 text-primary-accent dark:text-dark-accent border-b pb-2">인물 관계 관리</h2>
             
             {/* Add Relationship Form */}
-            <form onSubmit={handleAddRelationship} className="mb-8 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 flex flex-wrap gap-4 items-end">
+            <form onSubmit={handleAddRelationship} className="mb-8 p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 flex flex-col md:flex-row md:flex-wrap gap-4 md:items-end">
                 <h3 className="text-lg font-semibold w-full mb-2">새 관계 추가</h3>
-                <select value={sourceId} onChange={e => setSourceId(e.target.value)} className="flex-1 min-w-40 p-2 border rounded-md bg-white dark:bg-gray-700">
+                <select value={sourceId} onChange={e => setSourceId(e.target.value)} className="w-full md:flex-1 md:min-w-40 p-2 border rounded-md bg-white dark:bg-gray-700">
                     <option value="">-- 시작 캐릭터 --</option>
                     {availableCharacters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
-                
-                <div className="flex-1 min-w-40 flex flex-col">
+
+                <div className="w-full md:flex-1 md:min-w-40 flex flex-col">
                     <label htmlFor="description" className="text-sm mb-1">관계 설명</label>
                     <input id="description" type="text" value={description} onChange={e => setDescription(e.target.value)} placeholder="예: 친구, 적, 스승..." className="w-full p-2 border rounded-md bg-white dark:bg-gray-700"/>
                 </div>
 
-                <select value={targetId} onChange={e => setTargetId(e.target.value)} className="flex-1 min-w-40 p-2 border rounded-md bg-white dark:bg-gray-700">
+                <select value={targetId} onChange={e => setTargetId(e.target.value)} className="w-full md:flex-1 md:min-w-40 p-2 border rounded-md bg-white dark:bg-gray-700">
                     <option value="">-- 대상 캐릭터 --</option>
                     {availableCharacters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
                 {formError && <p className="text-red-500 text-sm mt-2 w-full">{formError}</p>}
-                <button type="submit" className="px-4 py-2 bg-primary-accent text-white rounded-md hover:bg-opacity-90 min-w-max">관계 추가</button>
+                <button type="submit" className="w-full md:w-auto px-4 py-2 bg-primary-accent text-white rounded-md hover:bg-opacity-90">관계 추가</button>
             </form>
 
             {/* React Flow Canvas for Relationship Graph */}
-            <div className="flex-1 rounded-lg border-2 border-ink/10 dark:border-pale-lavender/10" style={{ height: '600px' }}> {/* Fixed height for the graph */}
+            <div className="flex-1 rounded-lg border-2 border-ink/10 dark:border-pale-lavender/10 min-h-[300px] md:min-h-[600px]" style={{ height: '100%' }}>
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}

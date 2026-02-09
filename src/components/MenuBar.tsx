@@ -37,7 +37,7 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
   const colors = ['#8B5CF6', '#EF4444', '#10B981', '#3B82F6', '#F97316'];
 
   return (
-    <div className="flex items-center p-2 border-b border-ink/10 dark:border-pale-lavender/10 space-x-2">
+    <div className="flex flex-wrap items-center p-2 border-b border-ink/10 dark:border-pale-lavender/10 gap-1 md:gap-0 md:space-x-2">
 
       {/* Headings */}
       <button
@@ -62,7 +62,7 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
         <h3 className="text-sm font-bold">H3</h3> {/* text-sm for H3 size */}
       </button>
 
-      <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
+      <div className="hidden md:block h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
 
       {/* Bold */}
       <button
@@ -82,7 +82,7 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
         <em>I</em>
       </button>
       
-      <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
+      <div className="hidden md:block h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
 
       {/* Lists */}
       <button
@@ -100,7 +100,7 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
         <ListIcon className="w-5 h-5" /> {/* Swap icon */}
       </button>
       
-      <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
+      <div className="hidden md:block h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
 
       {/* Link */}
       <button
@@ -137,7 +137,7 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
         <MinusIcon className="w-5 h-5" />
       </button>
 
-      <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
+      <div className="hidden md:block h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
 
       {/* Color picker */}
       <div className="relative group p-1">
@@ -164,7 +164,7 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
         </div>
       </div>
       
-      <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
+      <div className="hidden md:block h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
 
       {/* Foreshadow Button */}
       <button
@@ -176,7 +176,7 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
         <FlagIcon className="w-5 h-5" />
       </button>
 
-      <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
+      <div className="hidden md:block h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
 
       {/* Spell Check Button */}
       <button
@@ -188,7 +188,7 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
         <SpellCheckIcon className="w-5 h-5" />
       </button>
       
-      <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
+      <div className="hidden md:block h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
 
       {/* Pacing Check Button */}
       <button
@@ -200,7 +200,7 @@ const MenuBar = ({ editor, onSpellCheck, onPacingCheck, onConsistencyCheck }: Me
         🎵
       </button>
 
-      <div className="h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
+      <div className="hidden md:block h-6 border-l border-ink/10 dark:border-pale-lavender/10 mx-2"></div>
 
       {/* Character Consistency Check Button */}
       <button

@@ -276,30 +276,30 @@ const Dashboard = () => {
           {!isFullscreen && <div className="hidden md:flex"><RightSidebar onPublish={handlePublishClick} onGenerateCover={handleGenerateCover} onExportEpub={handleExportEpub} /></div>}
 
           {/* Mobile overlay sidebars */}
-          {mobilePanel && (
-            <div
-              className="md:hidden fixed inset-0 z-40 bg-black/50"
-              onClick={() => setMobilePanel(null)}
-            />
-          )}
           {mobilePanel === 'left' && (
-            <div className="md:hidden fixed inset-y-0 left-0 z-50 w-72 bg-paper dark:bg-forest-primary shadow-xl overflow-y-auto">
+            <div className="md:hidden fixed inset-0 z-50 bg-paper dark:bg-forest-primary overflow-y-auto">
               <LeftSidebar
-                className="w-full p-4 flex flex-col"
+                className="w-full p-4 flex flex-col min-h-full"
                 onClose={() => setMobilePanel(null)}
               />
             </div>
           )}
           {mobilePanel === 'right' && (
-            <div className="md:hidden fixed inset-y-0 right-0 z-50 w-80 bg-paper dark:bg-forest-primary shadow-xl overflow-y-auto">
-              <RightSidebar
-                className="w-full p-4 grid grid-rows-[auto_auto_auto_1fr] gap-y-6"
-                onClose={() => setMobilePanel(null)}
-                onPublish={handlePublishClick}
-                onGenerateCover={handleGenerateCover}
-                onExportEpub={handleExportEpub}
+            <>
+              <div
+                className="md:hidden fixed inset-0 z-40 bg-black/50"
+                onClick={() => setMobilePanel(null)}
               />
-            </div>
+              <div className="md:hidden fixed inset-y-0 right-0 z-50 w-80 bg-paper dark:bg-forest-primary shadow-xl overflow-y-auto">
+                <RightSidebar
+                  className="w-full p-4 grid grid-rows-[auto_auto_auto_1fr] gap-y-6"
+                  onClose={() => setMobilePanel(null)}
+                  onPublish={handlePublishClick}
+                  onGenerateCover={handleGenerateCover}
+                  onExportEpub={handleExportEpub}
+                />
+              </div>
+            </>
           )}
         </div>
 
