@@ -6,7 +6,7 @@
 [![React](https://img.shields.io/badge/React-18.3-blue)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green)](https://supabase.com/)
-[![Gemini AI](https://img.shields.io/badge/Gemini-AI-orange)](https://ai.google.dev/)
+[![Gemini AI](https://img.shields.io/badge/Gemini-AI-orange)](https://ai.google.dev/)네
 [![PWA](https://img.shields.io/badge/PWA-supported-blueviolet)](https://persona-writer.vercel.app/)
 
 **Persona Writer**는 AI 기반의 차세대 글쓰기 플랫폼입니다. 작가들이 체계적으로 세계관을 구축하고, 매력적인 캐릭터를 창조하며, 일관성 있는 스토리를 완성할 수 있도록 돕습니다.

@@ -11,6 +11,7 @@ import { NoticesPage } from './pages/NoticesPage';
 import { useTheme } from './hooks/useTheme';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { UsernameSetupModal } from './components/UsernameSetupModal';
+import { Analytics } from "@vercel/analytics/react"
 
 // Component to handle protected routes
 const AppRoutes = () => {
@@ -44,6 +45,7 @@ function App() {
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>
+      <Analytics />
     </BrowserRouter>
   );
 }
